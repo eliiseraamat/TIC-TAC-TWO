@@ -1,4 +1,7 @@
-﻿using MenuSystem;
+﻿using GameBrain;
+using MenuSystem;
+
+var gameInstance= new TicTacTwoBrain();
 
 var customizeMenu = new Menu(
     EMenuLevel.Deep,
@@ -18,7 +21,7 @@ var newGameMenu = new Menu(
         {
             ShortCut = "1",
             Title = "Classical",
-            MenuItemAction = DummyMethod
+            MenuItemAction = NewGame
         },
         new MenuItem()
         {
@@ -71,3 +74,20 @@ string DummyMethod()
     Console.ReadKey();
     return "foobar";
 }
+
+string NewGame()
+{
+    ConsoleUI.Visualizer.DrawBoard(gameInstance);
+    
+    Console.WriteLine("Give me coordinates <x, y>: ");
+    
+    var input = Console.ReadLine()!;
+    var inoutSplit = input.Split(",");
+    var inputX = int.Parse(inoutSplit[0]);
+    var inputY = int.Parse(inoutSplit[1]);
+
+    gameInstance.MakeAMove(inputX, inputY);
+
+    return "===";
+}
+

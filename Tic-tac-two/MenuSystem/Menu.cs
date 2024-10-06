@@ -93,6 +93,11 @@ public class Menu
             {
                 return menuItem.ShortCut;
             }
+            
+            if (!string.IsNullOrWhiteSpace(menuReturnValue))
+            {
+                return menuReturnValue;
+            }
 
         } while (true);
     }
