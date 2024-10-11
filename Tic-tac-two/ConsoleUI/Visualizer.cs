@@ -6,17 +6,24 @@ public static class Visualizer
 {
     public static void DrawBoard(TicTacTwoBrain gameInstance)
     {
+        var coordinates = gameInstance.GridCoordinates;
+        var gridSize = gameInstance.GridSize;
+        
         for (var y = 0; y < gameInstance.DimY; y++)
         {
             for (var x = 0; x < gameInstance.DimX; x++)
             {
-                if (0 < y && y < 4 && (x == 1 || x == 2)) 
+                if (y >= coordinates[1] && y <= coordinates[1] + gridSize - 1 && x >= coordinates[0] && x <= coordinates[0] + gridSize - 1)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
                 }
             
                 Console.Write(" " + DrawGamePiece(gameInstance.GameBoard[x, y]) + " ");
                 if (x == gameInstance.DimX - 1) continue;
+                if (y <= coordinates[1] + gridSize - 1 && x == coordinates[0] + gridSize - 1)
+                {
+                    Console.ResetColor();
+                }
                 Console.Write("|");
                 Console.ResetColor();
             }
@@ -25,11 +32,15 @@ public static class Visualizer
             if (y == gameInstance.DimY - 1) continue;
             for (var x = 0; x < gameInstance.DimX; x++)
             {
-                if ((y == 2 || y ==1) && x > 0 && x < 4)
+                if (y >= coordinates[1] && y <= coordinates[1] + gridSize - 2 && x >= coordinates[0] && x <= coordinates[0] + gridSize - 1)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
                 }
                 Console.Write("---");
+                if (y <= coordinates[1] + gridSize - 2 && x == coordinates[0] + gridSize - 1)
+                {
+                    Console.ResetColor();
+                }
                 if (x != gameInstance.DimX - 1)
                 {
                     Console.Write("+");
