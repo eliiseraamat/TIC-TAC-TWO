@@ -14,25 +14,25 @@ public class Menu
 
     public void SetMenuItemAction(string shortcut, Func<string> action)
     {
-        var menuItem = MenuItems.Single(m => m.ShortCut == shortcut);
+        var menuItem = MenuItems.Single(m => m.Shortcut == shortcut);
         menuItem.MenuItemAction = action;
     }
 
     private MenuItem _menuItemExit = new MenuItem()
     {
-        ShortCut = "E",
+        Shortcut = "E",
         Title = "Exit",
     };
     
     private MenuItem _menuItemReturn = new MenuItem()
     {
-        ShortCut = "R",
+        Shortcut = "R",
         Title = "Return",
     };
     
     private MenuItem _menuItemReturnMain = new MenuItem()
     {
-        ShortCut = "M",
+        Shortcut = "M",
         Title = "return to Main menu",
     };
 
@@ -51,7 +51,7 @@ public class Menu
             throw new ApplicationException("Menu items cannot be null or empty.");
         }
         
-        var shortcuts = new HashSet<string>(menuItems.Select(item => item.ShortCut));
+        var shortcuts = new HashSet<string>(menuItems.Select(item => item.Shortcut));
         
         if (shortcuts.Count < menuItems.Count || shortcuts.Contains("E") || shortcuts.Contains("R") ||
             shortcuts.Contains("M"))
@@ -89,19 +89,19 @@ public class Menu
                 if (_isCustomMenu) return menuReturnValue;
             }
 
-            if (menuItem.ShortCut == _menuItemReturn.ShortCut)
+            if (menuItem.Shortcut == _menuItemReturn.Shortcut)
             {
-                return menuItem.ShortCut;
+                return menuItem.Shortcut;
             }
             
-            if (menuItem.ShortCut == _menuItemExit.ShortCut || menuReturnValue == _menuItemExit.ShortCut)
+            if (menuItem.Shortcut == _menuItemExit.Shortcut || menuReturnValue == _menuItemExit.Shortcut)
             {
-                return _menuItemExit.ShortCut;
+                return _menuItemExit.Shortcut;
             }
             
-            if ((menuItem.ShortCut == _menuItemReturnMain.ShortCut || menuReturnValue == _menuItemReturnMain.ShortCut) && _menuLevel != EMenuLevel.Main)
+            if ((menuItem.Shortcut == _menuItemReturnMain.Shortcut || menuReturnValue == _menuItemReturnMain.Shortcut) && _menuLevel != EMenuLevel.Main)
             {
-                return menuItem.ShortCut;
+                return menuItem.Shortcut;
             }
             
         } while (true);
@@ -128,7 +128,7 @@ public class Menu
                 
                 foreach (var menuItem in MenuItems)
                 {
-                    if (menuItem.ShortCut.ToUpper() != userInput) continue;
+                    if (menuItem.Shortcut.ToUpper() != userInput) continue;
                     return menuItem;
                 }
                 

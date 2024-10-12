@@ -20,7 +20,7 @@ public class MenuItem
         }
     }
     
-    public string ShortCut 
+    public string Shortcut 
     {
         get => _shortcut; 
         set
@@ -35,6 +35,6 @@ public class MenuItem
 
     public override string ToString()
     {
-        return ShortCut + ") " + Title;
+        return Shortcut + ") " + Title;
     }
 }

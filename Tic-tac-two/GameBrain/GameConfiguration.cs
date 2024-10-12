@@ -15,11 +15,12 @@ public record struct GameConfiguration()
     public int MovePieceAfterMoves { get; set; } = 2;
 
     public EGamePiece StartingPiece { get; set; } = EGamePiece.X;
+    
+    public List<int> GridCoordinates { get; set; } = [1, 1];
 
-    public void SetStartingPiece(EGamePiece piece)
-    {
-        StartingPiece = piece;
-    }
+    public string PlayerX { get; set; } = "X";
+    
+    public string PlayerY { get; set; } = "O";
     
     public override string ToString() => $"Board {BoardSize}x{BoardSize}, grid {GridSize}x{GridSize}, to win: {WinCondition}, can move piece after {MovePieceAfterMoves} moves";
 }

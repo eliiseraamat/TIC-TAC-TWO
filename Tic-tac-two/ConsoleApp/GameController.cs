@@ -11,21 +11,36 @@ public static class GameController
     {
         var chosenConfigShortcut = ChooseConfiguration();
         
-        if (!int.TryParse(chosenConfigShortcut, out var configNo))
+        GameConfiguration chosenConfig;
+        
+        if (chosenConfigShortcut == "C")
         {
-            return chosenConfigShortcut;
+            chosenConfig = OptionsController.MainLoop();
         }
-    
-        var chosenConfig = ConfigRepository.GetConfigurationByName(ConfigRepository.GetConfigurationNames()[configNo]);
-    
+        else
+        {
+            if (!int.TryParse(chosenConfigShortcut, out var configNo))
+            {
+                ChooseConfiguration();
+            }
+
+            chosenConfig = ConfigRepository.GetConfigurationByName(ConfigRepository.GetConfigurationNames()[configNo]);
+        }
+        
         var gameInstance= new TicTacTwoBrain(chosenConfig);
+        
         
         do
         {
             Console.Clear();
+            
             Console.WriteLine("TIC-TAC-TWO");
+            
             ConsoleUI.Visualizer.DrawBoard(gameInstance);
+            
             EGamePiece player = gameInstance.NextMoveBy;
+            
+            var name = player == EGamePiece.X ? gameInstance.PlayerX : gameInstance.PlayerY;
 
             var userChoice = "";
 
@@ -36,11 +51,11 @@ public static class GameController
 
             if (userChoice == "2")
             {
-                Console.WriteLine($"Player {player}: give old coordinates and new coordinates for your piece <x,y>;<x,y>: ");
+                Console.WriteLine($"Player {name}: give old coordinates and new coordinates for your piece <x,y>;<x,y>: ");
             }
             else
             {
-                Console.WriteLine($"Player {player}: give coordinates <x,y>: ");
+                Console.WriteLine($"Player {name}: give coordinates <x,y>: ");
             }
             
             MakeMove(gameInstance, userChoice);
@@ -54,6 +69,20 @@ public static class GameController
         } while (true);
     }
 
+    public static GameConfiguration GetConfiguration()
+    {
+        var chosenConfigShortcut = ChooseConfiguration();
+        
+        if (!int.TryParse(chosenConfigShortcut, out var configNo))
+        {
+            ChooseConfiguration();
+        }
+    
+        var chosenConfig = ConfigRepository.GetConfigurationByName(ConfigRepository.GetConfigurationNames()[configNo]);
+        
+        return chosenConfig;
+    }
+
     private static string ChooseConfiguration()
     {
         var configMenuItems = new List<MenuItem>();
@@ -63,11 +92,18 @@ public static class GameController
             var returnValue = i.ToString();
             configMenuItems.Add(new MenuItem()
             {
-                Title = ConfigRepository.GetConfigurationNames()[0],
-                ShortCut = (i+1).ToString(),
+                Title = ConfigRepository.GetConfigurationNames()[i],
+                Shortcut = (i+1).ToString(),
                 MenuItemAction = () => returnValue
             });
         }
+        
+        configMenuItems.Add(new MenuItem()
+        {
+            Title = "Customize",
+            Shortcut = "C",
+            MenuItemAction = () => "C"
+        });
     
         var configMenu = new Menu(
             EMenuLevel.Secondary, 
@@ -118,7 +154,7 @@ public static class GameController
                     coordinates.Add(int.Parse(newPlace[1]));
                     return coordinates;
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     Console.WriteLine("Invalid input");
                 } 
@@ -136,7 +172,7 @@ public static class GameController
                 coordinates.Add(int.Parse(inputSplit[1]));
                 return coordinates;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 Console.WriteLine("Invalid input");
             }

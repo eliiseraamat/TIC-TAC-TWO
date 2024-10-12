@@ -27,6 +27,7 @@ public static class Visualizer
                 Console.Write("|");
                 Console.ResetColor();
             }
+            Console.ResetColor();
             Console.WriteLine();
         
             if (y == gameInstance.DimY - 1) continue;
@@ -47,6 +48,7 @@ public static class Visualizer
                 }
                 Console.ResetColor();
             }
+            Console.ResetColor();
             Console.WriteLine();
         }
     }
