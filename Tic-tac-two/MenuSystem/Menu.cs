@@ -109,13 +109,12 @@ public class Menu
 
     private MenuItem DisplayMenuGetUserChoice()
     {
-        var userInput = "";
 
         do
         {
             DrawMenu();
             
-            userInput = Console.ReadLine();
+            var userInput = Console.ReadLine();
 
             if (string.IsNullOrWhiteSpace(userInput))
             {

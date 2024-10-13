@@ -29,7 +29,30 @@ public static class GameController
         
         var gameInstance= new TicTacTwoBrain(chosenConfig);
         
-        
+        string choice;
+        do
+        {
+            var winner = GameLoop(gameInstance);
+
+            choice = EndGame(winner, gameInstance);
+
+            if (choice == "R")
+            {
+                gameInstance.ResetGame();
+            }
+            else
+            {
+                choice = "M";
+            }
+
+        } while (choice == "R");
+
+        return "r";
+
+    }
+
+    private static string GameLoop(TicTacTwoBrain gameInstance)
+    {
         do
         {
             Console.Clear();
@@ -38,49 +61,99 @@ public static class GameController
             
             ConsoleUI.Visualizer.DrawBoard(gameInstance);
             
-            EGamePiece player = gameInstance.NextMoveBy;
+            var player = gameInstance.NextMoveBy;
             
-            var name = player == EGamePiece.X ? gameInstance.PlayerX : gameInstance.PlayerY;
+            var name = player == EGamePiece.X ? gameInstance.PlayerX : gameInstance.PlayerO;
+            
+            var playerPieces = player == EGamePiece.X ? gameInstance.PlayerXPieces : gameInstance.PlayerOPieces;
 
-            var userChoice = "";
+            var userChoice = DisplayChoices(gameInstance, name, playerPieces);
 
-            if (gameInstance.EnoughMovesForMoreOptions())
+            if (userChoice == "-")
             {
-                userChoice = GetUserChoice();
-            }
-
-            if (userChoice == "2")
-            {
-                Console.WriteLine($"Player {name}: give old coordinates and new coordinates for your piece <x,y>;<x,y>: ");
-            }
-            else
-            {
-                Console.WriteLine($"Player {name}: give coordinates <x,y>: ");
+                return default!;
             }
             
             MakeMove(gameInstance, userChoice);
 
             if (gameInstance.WinningCondition())
             {
-                Console.WriteLine($"Player {player} won!");
-                return $"Player {player} won!";
+                return name;
             }
 
         } while (true);
     }
 
-    public static GameConfiguration GetConfiguration()
+    private static string DisplayChoices(TicTacTwoBrain gameInstance, string name, int playerPieces)
     {
-        var chosenConfigShortcut = ChooseConfiguration();
+        Console.WriteLine($"{name}'s turn");
         
-        if (!int.TryParse(chosenConfigShortcut, out var configNo))
+        Console.WriteLine();
+        
+        Console.WriteLine($"{gameInstance.PlayerX} has {gameInstance.PlayerXPieces} pieces left");
+        
+        Console.WriteLine($"{gameInstance.PlayerO} has {gameInstance.PlayerOPieces} pieces left");
+        
+        Console.WriteLine();
+        
+        var userChoice = "";
+        
+        if (gameInstance.EnoughMovesForMoreOptions())
         {
-            ChooseConfiguration();
+            userChoice = GetUserChoice(playerPieces, gameInstance);
         }
-    
-        var chosenConfig = ConfigRepository.GetConfigurationByName(ConfigRepository.GetConfigurationNames()[configNo]);
         
-        return chosenConfig;
+        switch (userChoice)
+        {
+            case "-":
+                break;
+            case "P":
+                Console.WriteLine("Give old coordinates and new coordinates for your piece <x,y>;<x,y>:");
+                break;
+            case "G":
+                Console.WriteLine("Give grid coordinates <x,y>:");
+                break;
+            default:
+                Console.WriteLine("Give the coordinates of the new piece <x,y>:");
+                break;
+        }
+
+        return userChoice;
+    }
+
+    private static string EndGame(string player, TicTacTwoBrain gameInstance)
+    {
+        Console.Clear();
+            
+        Console.WriteLine("TIC-TAC-TWO");
+            
+        ConsoleUI.Visualizer.DrawBoard(gameInstance);
+
+        if (player == default!)
+        {
+            Console.WriteLine("It's a draw!");
+        }
+        else
+        {
+            Console.WriteLine($"{player} won!");
+        }
+        
+        Console.WriteLine("Would you like to reset game (R) or return to main menu (M)");
+        
+        do
+        {
+            var input = Console.ReadLine()!;
+            switch (input.ToUpper())
+            {
+                case "R":
+                    return "R";
+                case "M":
+                   return "M";
+                default:
+                    Console.WriteLine("Invalid input!");
+                    break;
+            }
+        } while (true);
     }
 
     private static string ChooseConfiguration()
@@ -114,19 +187,44 @@ public static class GameController
        return configMenu.Run();
     }
 
-    private static string GetUserChoice()
+    private static string GetUserChoice(int playerPieces, TicTacTwoBrain gameInstance)
     {
         do
         {
-            Console.WriteLine("1) Put new piece on grid");
-            Console.WriteLine("2) Change one of your pieces to the grid");
-            Console.WriteLine("3) Move grid one unit horizontally, vertically or diagonally");
-            var input = Console.ReadLine()!;
-            if (input == "1" || input == "2" || input == "3")
+            var choices = new List<string>();
+            
+            Console.WriteLine("Choose one of the following options:");
+
+            if (playerPieces > 0 && !gameInstance.IsGridFull())
             {
-                return input;
+                choices.Add("N");
+                Console.WriteLine("N) Put a new piece on the grid");
             }
-            Console.WriteLine("Chose one of the following options: ");
+
+            if (!gameInstance.IsGridFull())
+            {
+                choices.Add("P");
+                Console.WriteLine("P) Move one of your pieces to another spot in the grid.");
+            }
+
+            if (gameInstance.GridSize < gameInstance.DimX)
+            {
+                choices.Add("G");
+                Console.WriteLine("G) Move grid one spot horizontally, vertically or diagonally");
+            }
+
+            if (choices.Count == 0)
+            {
+                return "-";
+            }
+            
+            var input = Console.ReadLine()!;
+            
+            if (choices.Contains(input.ToUpper()))
+            {
+                return input.ToUpper();
+            }
+            
         } while (true);
     }
 
@@ -186,15 +284,15 @@ public static class GameController
         do
         {
             var coordinates = GetCoordinates();
-            if ((userChoice == "" || userChoice == "1") && gameInstance.MakeAMove(coordinates[0], coordinates[1]))
+            if ((userChoice == "" || userChoice == "N") && gameInstance.MakeAMove(coordinates[0], coordinates[1]))
             {
                 madeMove = true;
-            } else if (userChoice == "2" &&
+            } else if (userChoice == "P" &&
                       gameInstance.ChangePieceLocation(coordinates[0], coordinates[1], coordinates[2],
                           coordinates[3]))
             {
                 madeMove = true;
-            } else if (userChoice == "3" && gameInstance.MoveGrid(coordinates[0], coordinates[1]))
+            } else if (userChoice == "G" && gameInstance.MoveGrid(coordinates[0], coordinates[1]))
             {
                 madeMove = true;
             }

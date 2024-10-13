@@ -9,9 +9,9 @@ public static class Menus
         "TIC-TAC-TWO Options", [
             new MenuItem()
             {
-                Shortcut = "S",
+                Shortcut = "C",
                 Title = "Choose starting piece",
-                //MenuItemAction = OptionsController.SetStartingPiece
+                MenuItemAction = OptionsController.SetStartingPiece
             }
         ]);
 

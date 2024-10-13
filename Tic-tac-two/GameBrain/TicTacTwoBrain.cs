@@ -4,40 +4,39 @@ public class TicTacTwoBrain
 {
     private EGamePiece[,] _gameBoard;
     private EGamePiece _nextMoveBy { get; set; }
+
+    private static EGamePiece _startingPiece { get; set; } = EGamePiece.X;
     
-    private GameConfiguration _gameConfiguration;
+    private readonly GameConfiguration _gameConfiguration;
     
     private int _playerXPieces { get; set; }
     
-    private int _playerYPieces { get; set; }
+    private int _playerOPieces { get; set; }
 
     private List<int> _gridCoordinates;
 
-    private string _playerX;
-    private string _playerY;
-    
 
     public TicTacTwoBrain(GameConfiguration gameConfiguration)
     {
         _gameConfiguration = gameConfiguration;
         _gameBoard = new EGamePiece[gameConfiguration.BoardSize, gameConfiguration.BoardSize];
         _playerXPieces = gameConfiguration.Pieces;
-        _playerYPieces = gameConfiguration.Pieces;
+        _playerOPieces = gameConfiguration.Pieces;
         _gridCoordinates = gameConfiguration.GridCoordinates;
-        _playerX = gameConfiguration.PlayerX;
-        _playerY = gameConfiguration.PlayerY;
-        _nextMoveBy = gameConfiguration.StartingPiece;
-        if (_nextMoveBy != EGamePiece.O)
-        {
-            _nextMoveBy = gameConfiguration.StartingPiece;
-        }
+        PlayerX = gameConfiguration.PlayerX;
+        PlayerO = gameConfiguration.PlayerY;
+        _nextMoveBy = _startingPiece != EGamePiece.X ? EGamePiece.O : gameConfiguration.StartingPiece;
     }
     
-    public string PlayerX => _playerX;
+    public string PlayerX { get; }
+
+    public string PlayerO { get; }
     
-    public string PlayerY => _playerY;
+    public int PlayerXPieces => _playerXPieces;
     
-    //public void SetNextMoveBy(EGamePiece piece) => _nextMoveBy = piece;
+    public int PlayerOPieces => _playerOPieces;
+
+    public static void SetStartingPiece(EGamePiece piece) => _startingPiece = piece;
     
     public int DimX => _gameBoard.GetLength(0);
     
@@ -49,12 +48,8 @@ public class TicTacTwoBrain
 
     public int GridSize => _gameConfiguration.GridSize;
 
-    public EGamePiece[,] GameBoard
-    {
-        get => GetBoard();
-        private set => _gameBoard = value;
-    }
-    
+    public EGamePiece[,] GameBoard => GetBoard();
+
     private EGamePiece[,] GetBoard()
     {
         var copyOfBoard = new EGamePiece[_gameBoard.GetLength(0), _gameBoard.GetLength(1)];
@@ -70,7 +65,8 @@ public class TicTacTwoBrain
 
     public bool MakeAMove(int x, int y)
     {
-        var playerPieces = _nextMoveBy == EGamePiece.X ? _playerXPieces : _playerYPieces;
+        var playerPieces = _nextMoveBy == EGamePiece.X ? _playerXPieces : _playerOPieces;
+        
         if (_gameBoard[x, y] != EGamePiece.Empty || !(x >= _gridCoordinates[0] && x <= _gridCoordinates[0] + GridSize - 1) 
             || !(y >= _gridCoordinates[1] && y <= _gridCoordinates[1] + GridSize - 1) || playerPieces == 0)
         {
@@ -85,7 +81,7 @@ public class TicTacTwoBrain
         }
         else
         {
-            _playerYPieces--;
+            _playerOPieces--;
         }
         
         _nextMoveBy = _nextMoveBy == EGamePiece.X ? EGamePiece.O : EGamePiece.X;
@@ -121,16 +117,34 @@ public class TicTacTwoBrain
         return true;
     }
 
+    public bool IsGridFull()
+    {
+        for (var y = _gridCoordinates[1]; y < _gridCoordinates[1] + GridSize; y++)
+        {
+            for (var x = _gridCoordinates[0]; x < _gridCoordinates[0] + GridSize; x++)
+            {
+                if (_gameBoard[x, y] == EGamePiece.Empty)
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     public void ResetGame()
     {
-        _gameBoard = new EGamePiece[_gameBoard.GetLength(0), _gameBoard.GetLength(1)];
-        _nextMoveBy = EGamePiece.X;
+        _gameBoard = new EGamePiece[_gameConfiguration.BoardSize, _gameConfiguration.BoardSize];
+        _nextMoveBy = _startingPiece;
+        _playerXPieces = _gameConfiguration.Pieces;
+        _playerOPieces = _gameConfiguration.Pieces;
+        _gridCoordinates = new List<int>(_gameConfiguration.GridCoordinates);
     }
 
     public bool EnoughMovesForMoreOptions()
     {
         return _playerXPieces <= _gameConfiguration.Pieces - _gameConfiguration.MovePieceAfterMoves &&
-               _playerYPieces <= _gameConfiguration.Pieces - _gameConfiguration.MovePieceAfterMoves;
+               _playerOPieces <= _gameConfiguration.Pieces - _gameConfiguration.MovePieceAfterMoves;
     }
 
     public bool WinningCondition()

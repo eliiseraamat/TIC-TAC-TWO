@@ -47,12 +47,26 @@ public static class OptionsController
             {
                 var inputSplit = input.Split(',');
                 var list = inputSplit.Select(number => int.Parse(number)).ToList();
-                if (list.Count == 5 && list[0] >= 3 && list[1] >= 3 && list[2] >= 3 && list[3] >= 3 && list[4] >= 0)
+                if (list[1] > list[0])
+                {
+                    Console.WriteLine("Grid size cannot be bigger than board size!");
+                } 
+                else if (list[3] > list[1])
+                {
+                    Console.WriteLine("Number of pieces in line to win cannot be greater than grid size!"); 
+                } 
+                else if (list[3] > list[2])
+                {
+                    Console.WriteLine("Number of pieces in line to win cannot be greater than number of pieces for each player !"); 
+                }
+                else if (list is [>= 3, >= 3, >= 3, >= 3, >= 0])
                 {
                     return list;
                 }
-
-                Console.WriteLine("Invalid input");
+                else
+                {
+                    Console.WriteLine("Invalid input");
+                }
             }
             catch (Exception)
             {
@@ -87,20 +101,25 @@ public static class OptionsController
         } while (true);
     }
 
-    // public static string SetStartingPiece()
-    // {
-    //     Console.WriteLine("Choose if X starts (X) or Y starts (O):");
-    //
-    //     var chosenPiece = GetStartingPiece();
-    //
-    //     if (chosenPiece == "X")
-    //     {
-    //         TicTacTwoBrain.SetNextMoveBy(EGamePiece.X);
-    //     }
-    //     return "";
-    // }
+    public static string SetStartingPiece()
+    {
+        Console.Clear();
+        Console.WriteLine("Choose if X starts (X) or O starts (O):");
+    
+        var chosenPiece = GetStartingPiece();
+    
+        if (chosenPiece == "X")
+        {
+            TicTacTwoBrain.SetStartingPiece(EGamePiece.X);
+        }
+        else
+        {
+            TicTacTwoBrain.SetStartingPiece(EGamePiece.O);
+        }
+        return "";
+    }
 
-    /*private static string GetStartingPiece()
+    private static string GetStartingPiece()
     {
         do
         {
@@ -109,6 +128,7 @@ public static class OptionsController
             {
                 return input.ToUpper();
             }
+            Console.WriteLine("Invalid input.");
         } while (true);
-    }*/
+    }
 }
