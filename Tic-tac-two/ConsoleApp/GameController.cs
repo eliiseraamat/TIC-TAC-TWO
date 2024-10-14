@@ -32,6 +32,8 @@ public static class GameController
         string choice;
         do
         {
+            //Console.Clear();
+            
             var winner = GameLoop(gameInstance);
 
             choice = EndGame(winner, gameInstance);
@@ -228,12 +230,12 @@ public static class GameController
         } while (true);
     }
 
-    private static List<int> GetCoordinates()
+    private static List<int> GetCoordinates(string userChoice)
     {
         do
         {
             var input = Console.ReadLine()!;
-            if (input.Contains(";"))
+            if (userChoice == "P")
             {
                 try
                 {
@@ -250,29 +252,47 @@ public static class GameController
                     coordinates.Add(int.Parse(oldPlace[1]));
                     coordinates.Add(int.Parse(newPlace[0]));
                     coordinates.Add(int.Parse(newPlace[1]));
-                    return coordinates;
+                    if (coordinates[0] < 0 || coordinates[1] < 0 || coordinates[2] < 0 || coordinates[3] < 0)
+                    {
+                        Console.WriteLine("Invalid input");
+                    }
+                    else
+                    {
+                        return coordinates;
+                    }
                 }
                 catch (Exception)
                 {
                     Console.WriteLine("Invalid input");
                 } 
             }
-            try
+            else
             {
-                var inputSplit = input.Split(",");
-                var coordinates = new List<int>();
-                if (inputSplit.Length != 2)
+                try
+                {
+                    var inputSplit = input.Split(",");
+                    var coordinates = new List<int>();
+                    if (inputSplit.Length != 2)
+                    {
+                        Console.WriteLine("Invalid input");
+                        continue;
+                    }
+                    coordinates.Add(int.Parse(inputSplit[0]));
+                    coordinates.Add(int.Parse(inputSplit[1]));
+                    
+                    if (coordinates[0] < 0 || coordinates[1] < 0)
+                    {
+                        Console.WriteLine("Invalid input");
+                    }
+                    else
+                    {
+                        return coordinates;
+                    }
+                }
+                catch (Exception)
                 {
                     Console.WriteLine("Invalid input");
-                    continue;
                 }
-                coordinates.Add(int.Parse(inputSplit[0]));
-                coordinates.Add(int.Parse(inputSplit[1]));
-                return coordinates;
-            }
-            catch (Exception)
-            {
-                Console.WriteLine("Invalid input");
             }
 
         } while (true);
@@ -283,7 +303,7 @@ public static class GameController
         var madeMove = false;
         do
         {
-            var coordinates = GetCoordinates();
+            var coordinates = GetCoordinates(userChoice);
             if ((userChoice == "" || userChoice == "N") && gameInstance.MakeAMove(coordinates[0], coordinates[1]))
             {
                 madeMove = true;

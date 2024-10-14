@@ -20,7 +20,7 @@ public static class OptionsController
         
         var playerX = Console.ReadLine()!;
         
-        Console.WriteLine("Choose name for player Y:");
+        Console.WriteLine("Choose name for player O:");
         
         var playerY = Console.ReadLine()!;
 
@@ -91,6 +91,10 @@ public static class OptionsController
                     {
                         return list;
                     }
+                    Console.WriteLine("Invalid input.");
+                }
+                else
+                {
                     Console.WriteLine("Invalid input.");
                 }
             }

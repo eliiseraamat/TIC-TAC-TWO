@@ -13,8 +13,6 @@ public class TicTacTwoBrain
     
     private int _playerOPieces { get; set; }
 
-    private List<int> _gridCoordinates;
-
 
     public TicTacTwoBrain(GameConfiguration gameConfiguration)
     {
@@ -22,7 +20,7 @@ public class TicTacTwoBrain
         _gameBoard = new EGamePiece[gameConfiguration.BoardSize, gameConfiguration.BoardSize];
         _playerXPieces = gameConfiguration.Pieces;
         _playerOPieces = gameConfiguration.Pieces;
-        _gridCoordinates = gameConfiguration.GridCoordinates;
+        GridCoordinates = new List<int>(gameConfiguration.GridCoordinates);
         PlayerX = gameConfiguration.PlayerX;
         PlayerO = gameConfiguration.PlayerY;
         _nextMoveBy = _startingPiece != EGamePiece.X ? EGamePiece.O : gameConfiguration.StartingPiece;
@@ -44,7 +42,7 @@ public class TicTacTwoBrain
 
     public EGamePiece NextMoveBy => _nextMoveBy;
 
-    public List<int> GridCoordinates => _gameConfiguration.GridCoordinates;
+    public List<int> GridCoordinates { get; private set; }
 
     public int GridSize => _gameConfiguration.GridSize;
 
@@ -67,8 +65,8 @@ public class TicTacTwoBrain
     {
         var playerPieces = _nextMoveBy == EGamePiece.X ? _playerXPieces : _playerOPieces;
         
-        if (_gameBoard[x, y] != EGamePiece.Empty || !(x >= _gridCoordinates[0] && x <= _gridCoordinates[0] + GridSize - 1) 
-            || !(y >= _gridCoordinates[1] && y <= _gridCoordinates[1] + GridSize - 1) || playerPieces == 0)
+        if (_gameBoard[x, y] != EGamePiece.Empty || !(x >= GridCoordinates[0] && x <= GridCoordinates[0] + GridSize - 1) 
+            || !(y >= GridCoordinates[1] && y <= GridCoordinates[1] + GridSize - 1) || playerPieces == 0)
         {
             return false;
         }
@@ -91,8 +89,8 @@ public class TicTacTwoBrain
     public bool ChangePieceLocation(int oldX, int oldY, int newX, int newY)
     {
         if (_gameBoard[oldX, oldY] != _nextMoveBy || _gameBoard[newX, newY] != EGamePiece.Empty
-                                                  || !(newX >= _gridCoordinates[0] && newX <= _gridCoordinates[1] + 2)
-                                                  || !(newY >= _gridCoordinates[0] && newY <= _gridCoordinates[1] + 2) 
+                                                  || !(newX >= GridCoordinates[0] && newX <= GridCoordinates[0] + 2)
+                                                  || !(newY >= GridCoordinates[1] && newY <= GridCoordinates[1] + 2) 
                                                   || !(oldX <= DimX && oldX >= 0) || !(oldY <= DimY && oldY >= 0))
         {
             return false;
@@ -105,23 +103,23 @@ public class TicTacTwoBrain
 
     public bool MoveGrid(int x, int y)
     {
-        if (Math.Abs(x - _gridCoordinates[0]) != 1 && Math.Abs(y - _gridCoordinates[1]) != 1 || 
+        if (Math.Abs(x - GridCoordinates[0]) != 1 && Math.Abs(y - GridCoordinates[1]) != 1 || 
             x + _gameConfiguration.GridSize > DimX || y + _gameConfiguration.GridSize > DimY || x < 0 || y < 0 || 
-            x == _gridCoordinates[0]  && y == _gridCoordinates[1])
+            x == GridCoordinates[0]  && y == GridCoordinates[1])
         {
             return false;
         }
-        _gridCoordinates[0] = x;
-        _gridCoordinates[1] = y;
+        GridCoordinates[0] = x;
+        GridCoordinates[1] = y;
         _nextMoveBy = _nextMoveBy == EGamePiece.X ? EGamePiece.O : EGamePiece.X;
         return true;
     }
 
     public bool IsGridFull()
     {
-        for (var y = _gridCoordinates[1]; y < _gridCoordinates[1] + GridSize; y++)
+        for (var y = GridCoordinates[1]; y < GridCoordinates[1] + GridSize; y++)
         {
-            for (var x = _gridCoordinates[0]; x < _gridCoordinates[0] + GridSize; x++)
+            for (var x = GridCoordinates[0]; x < GridCoordinates[0] + GridSize; x++)
             {
                 if (_gameBoard[x, y] == EGamePiece.Empty)
                 {
@@ -138,7 +136,7 @@ public class TicTacTwoBrain
         _nextMoveBy = _startingPiece;
         _playerXPieces = _gameConfiguration.Pieces;
         _playerOPieces = _gameConfiguration.Pieces;
-        _gridCoordinates = new List<int>(_gameConfiguration.GridCoordinates);
+        GridCoordinates = new List<int>(_gameConfiguration.GridCoordinates);
     }
 
     public bool EnoughMovesForMoreOptions()
@@ -155,11 +153,11 @@ public class TicTacTwoBrain
 
     private bool CheckWinConditionHorizontally()
     {
-        for (var y = _gridCoordinates[1]; y < _gridCoordinates[1] + GridSize; y++)
+        for (var y = GridCoordinates[1]; y < GridCoordinates[1] + GridSize; y++)
         {
             var count = 0;
             var piece = EGamePiece.Empty;
-            for (var x = _gridCoordinates[0]; x < _gridCoordinates[0] + GridSize; x++)
+            for (var x = GridCoordinates[0]; x < GridCoordinates[0] + GridSize; x++)
             {
                 if (piece == EGamePiece.Empty && _gameBoard[x, y] != EGamePiece.Empty)
                 {
@@ -186,11 +184,11 @@ public class TicTacTwoBrain
 
     private bool CheckWinConditionVertically()
     {
-        for (var x = _gridCoordinates[0]; x < _gridCoordinates[0] + GridSize; x++)
+        for (var x = GridCoordinates[0]; x < GridCoordinates[0] + GridSize; x++)
         {
             var count = 0;
             var piece = EGamePiece.Empty;
-            for (var y = _gridCoordinates[0]; y < _gridCoordinates[0] + GridSize; y++)
+            for (var y = GridCoordinates[1]; y < GridCoordinates[1] + GridSize; y++)
             {
                 if (piece == EGamePiece.Empty && _gameBoard[x, y] != EGamePiece.Empty)
                 {
@@ -217,12 +215,12 @@ public class TicTacTwoBrain
 
     private bool CheckWinConditionDiagonally1()
     {
-        for (var x = _gridCoordinates[0]; x < _gridCoordinates[0] + GridSize; x++)
+        for (var x = GridCoordinates[0]; x < GridCoordinates[0] + GridSize; x++)
         {
             var count = 0;
             var piece = EGamePiece.Empty;
-            var y = _gridCoordinates[1];
-            for (var x2 = x; x2 > _gridCoordinates[0] - 1; x2--)
+            var y = GridCoordinates[1];
+            for (var x2 = x; x2 > GridCoordinates[0] - 1; x2--)
             {
                 if (piece == EGamePiece.Empty && _gameBoard[x2, y] != EGamePiece.Empty)
                 {
@@ -250,12 +248,12 @@ public class TicTacTwoBrain
 
         if (_gameConfiguration.WinCondition < GridSize)
         {
-            for (var x = _gridCoordinates[0] + 1; x < _gridCoordinates[0] + GridSize - 1; x++)
+            for (var x = GridCoordinates[0] + 1; x < GridCoordinates[0] + GridSize - 1; x++)
             {
                 var count = 0;
                 var piece = EGamePiece.Empty;
-                var y = _gridCoordinates[1] + GridSize - 1;
-                for (var i = 0; i < GridSize - 1; i++)
+                var y = GridCoordinates[1] + GridSize - 1;
+                for (var i = 0; y - i <= 0; i++)
                 {
                     if (piece == EGamePiece.Empty && _gameBoard[x + i, y - i] != EGamePiece.Empty)
                     {
@@ -284,12 +282,12 @@ public class TicTacTwoBrain
 
     private bool CheckWinConditionDiagonally2()
     {
-        for (var x = _gridCoordinates[0] + GridSize - 1; x >= _gridCoordinates[0]; x--)
+        for (var x = GridCoordinates[0] + GridSize - 1; x >= GridCoordinates[0]; x--)
         {
             var count = 0;
             var piece = EGamePiece.Empty;
-            var y = _gridCoordinates[1];
-            for (var x2 = x; x2 < _gridCoordinates[0] + GridSize; x2++)
+            var y = GridCoordinates[1];
+            for (var x2 = x; x2 < GridCoordinates[0] + GridSize; x2++)
             {
                 if (piece == EGamePiece.Empty && _gameBoard[x2, y] != EGamePiece.Empty)
                 {
@@ -316,12 +314,12 @@ public class TicTacTwoBrain
         }
         if (_gameConfiguration.WinCondition < GridSize)
         {
-            for (var x = _gridCoordinates[0] + GridSize - 2; x >= _gridCoordinates[0]; x--)
+            for (var x = GridCoordinates[0] + GridSize - 2; x >= GridCoordinates[0]; x--)
             {
                 var count = 0;
                 var piece = EGamePiece.Empty;
-                var y = _gridCoordinates[1] + GridSize - 1;
-                for (var i = 0; i < GridSize - 1; i++)
+                var y = GridCoordinates[1] + GridSize - 1;
+                for (var i = 0; y - i <= 0; i++)
                 {
                     if (piece == EGamePiece.Empty && _gameBoard[x - i, y - i] != EGamePiece.Empty)
                     {
