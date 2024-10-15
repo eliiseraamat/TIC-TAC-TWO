@@ -2,7 +2,7 @@
 
 namespace DAL;
 
-public class ConfigRepository
+public class ConfigRepositoryInMemory : IConfigRepository
 {
     private List<GameConfiguration> _gameConfigurations = new List<GameConfiguration>()
     {
@@ -10,6 +10,10 @@ public class ConfigRepository
         {
             Name = "Classical"
         },
+        new GameConfiguration()
+        {
+            Name = "Customize"
+        }
     };
     
     public List<string> GetConfigurationNames()

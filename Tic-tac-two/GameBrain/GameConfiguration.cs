@@ -20,7 +20,7 @@ public record struct GameConfiguration()
 
     public string PlayerX { get; set; } = "X";
     
-    public string PlayerY { get; set; } = "O";
+    public string PlayerO { get; set; } = "O";
     
     public override string ToString() => $"Board {BoardSize}x{BoardSize}, grid {GridSize}x{GridSize}, to win: {WinCondition}, can move piece after {MovePieceAfterMoves} moves";
 }

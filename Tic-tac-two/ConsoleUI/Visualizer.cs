@@ -9,8 +9,16 @@ public static class Visualizer
         var coordinates = gameInstance.GridCoordinates;
         var gridSize = gameInstance.GridSize;
         
+        Console.Write("   ");
+        for (var x = 0; x < gameInstance.DimX; x++)
+        {
+            Console.Write($" {x}  ");
+        }
+        Console.WriteLine(); 
+        
         for (var y = 0; y < gameInstance.DimY; y++)
         {
+            Console.Write($" {y} ");
             for (var x = 0; x < gameInstance.DimX; x++)
             {
                 if (y >= coordinates[1] && y <= coordinates[1] + gridSize - 1 && x >= coordinates[0] && x <= coordinates[0] + gridSize - 1)
@@ -18,7 +26,7 @@ public static class Visualizer
                     Console.ForegroundColor = ConsoleColor.Red;
                 }
             
-                Console.Write(" " + DrawGamePiece(gameInstance.GameBoard[x, y]) + " ");
+                Console.Write(" " + DrawGamePiece(gameInstance.GameBoard[x][y]) + " ");
                 if (x == gameInstance.DimX - 1) continue;
                 if (y <= coordinates[1] + gridSize - 1 && x == coordinates[0] + gridSize - 1)
                 {
@@ -31,6 +39,7 @@ public static class Visualizer
             Console.WriteLine();
         
             if (y == gameInstance.DimY - 1) continue;
+            Console.Write("  ");
             for (var x = 0; x < gameInstance.DimX; x++)
             {
                 if (y >= coordinates[1] && y <= coordinates[1] + gridSize - 2 && x >= coordinates[0] && x <= coordinates[0] + gridSize - 1)

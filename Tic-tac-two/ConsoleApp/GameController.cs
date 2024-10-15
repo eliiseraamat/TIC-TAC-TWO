@@ -6,25 +6,25 @@ namespace Tic_tac_two2;
 
 public static class GameController
 {
-    private static readonly ConfigRepository ConfigRepository = new ConfigRepository();
+    private static readonly IConfigRepository ConfigRepository = new ConfigRepositoryJson();
+    private static readonly IGameRepository GameRepository = new GameRepositoryJson();
+    
     public static string MainLoop()
     {
         var chosenConfigShortcut = ChooseConfiguration();
         
         GameConfiguration chosenConfig;
-        
-        if (chosenConfigShortcut == "C")
+ 
+        if (!int.TryParse(chosenConfigShortcut, out var configNo))
         {
-            chosenConfig = OptionsController.MainLoop();
+            ChooseConfiguration();
         }
-        else
-        {
-            if (!int.TryParse(chosenConfigShortcut, out var configNo))
-            {
-                ChooseConfiguration();
-            }
 
-            chosenConfig = ConfigRepository.GetConfigurationByName(ConfigRepository.GetConfigurationNames()[configNo]);
+        chosenConfig = ConfigRepository.GetConfigurationByName(ConfigRepository.GetConfigurationNames()[configNo]);
+        
+        if (chosenConfig.Name == "Customize")
+        {
+            chosenConfig = OptionsController.MainLoop(chosenConfig);
         }
         
         var gameInstance= new TicTacTwoBrain(chosenConfig);
@@ -32,7 +32,7 @@ public static class GameController
         string choice;
         do
         {
-            //Console.Clear();
+            Console.Clear();
             
             var winner = GameLoop(gameInstance);
 
@@ -110,13 +110,13 @@ public static class GameController
             case "-":
                 break;
             case "P":
-                Console.WriteLine("Give old coordinates and new coordinates for your piece <x,y>;<x,y>:");
+                Console.WriteLine("Give old coordinates and new coordinates for your piece <x,y>;<x,y> or save:");
                 break;
             case "G":
-                Console.WriteLine("Give grid coordinates <x,y>:");
+                Console.WriteLine("Give grid coordinates <x,y> or save:");
                 break;
             default:
-                Console.WriteLine("Give the coordinates of the new piece <x,y>:");
+                Console.WriteLine("Give the coordinates of the new piece <x,y> or save:");
                 break;
         }
 
@@ -173,12 +173,12 @@ public static class GameController
             });
         }
         
-        configMenuItems.Add(new MenuItem()
-        {
-            Title = "Customize",
-            Shortcut = "C",
-            MenuItemAction = () => "C"
-        });
+        // configMenuItems.Add(new MenuItem()
+        // {
+        //     Title = "Customize",
+        //     Shortcut = "C",
+        //     MenuItemAction = () => "C"
+        // });
     
         var configMenu = new Menu(
             EMenuLevel.Secondary, 
@@ -230,12 +230,17 @@ public static class GameController
         } while (true);
     }
 
-    private static List<int> GetCoordinates(string userChoice)
+    private static List<int> GetCoordinates(string userChoice, TicTacTwoBrain gameInstance)
     {
+        // TODO: save uude kohta???
         do
         {
             var input = Console.ReadLine()!;
-            if (userChoice == "P")
+            if (input.Equals("save", StringComparison.CurrentCultureIgnoreCase))
+            {
+                GameRepository.SaveGame(gameInstance.GetGameStateJson(), gameInstance.GetGameConfigName());
+            } 
+            else if (userChoice == "P")
             {
                 try
                 {
@@ -303,7 +308,7 @@ public static class GameController
         var madeMove = false;
         do
         {
-            var coordinates = GetCoordinates(userChoice);
+            var coordinates = GetCoordinates(userChoice, gameInstance);
             if ((userChoice == "" || userChoice == "N") && gameInstance.MakeAMove(coordinates[0], coordinates[1]))
             {
                 madeMove = true;

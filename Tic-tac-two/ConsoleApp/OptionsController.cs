@@ -1,41 +1,43 @@
-﻿using GameBrain;
+﻿using DAL;
+using GameBrain;
 
 namespace Tic_tac_two2;
 
 public static class OptionsController
 {
-    public static GameConfiguration MainLoop()
+    public static GameConfiguration MainLoop(GameConfiguration chosenConfig)
     {
         Console.Clear();
         
         Console.WriteLine("Choose board size (min 3)\ngrid size (min 3)\nnumber of pieces for each player (min 3)\nnumber of pieces in line to win (min 3)\nnumber of moves for one player after which the player can move grid: <a, b, c, d, e>");
 
         var input = GetInput();
+
+        chosenConfig.BoardSize = input[0];
+        chosenConfig.GridSize = input[1];
+        chosenConfig.Pieces = input[2];
+        chosenConfig.WinCondition = input[3];
+        chosenConfig.MovePieceAfterMoves = input[4];
         
         Console.WriteLine("Choose grid coordinates <x, y>:");
 
-        var coordinates = GetCoordinates(input[0]);
+        var coordinates = GetCoordinates(input[0], input[1]);
+
+        chosenConfig.GridCoordinates = coordinates;
         
         Console.WriteLine("Choose name for player X:");
         
         var playerX = Console.ReadLine()!;
+
+        chosenConfig.PlayerX = playerX;
         
         Console.WriteLine("Choose name for player O:");
         
-        var playerY = Console.ReadLine()!;
-
-        return new GameConfiguration()
-        {
-            Name = "Customized Game",
-            BoardSize = input[0],
-            GridSize = input[1],
-            Pieces = input[2],
-            WinCondition = input[3],
-            MovePieceAfterMoves = input[4],
-            GridCoordinates = coordinates,
-            PlayerX = playerX,
-            PlayerY = playerY
-        };
+        var playerO = Console.ReadLine()!;
+        
+        chosenConfig.PlayerO = playerO;
+        
+        return chosenConfig;
     }
 
     private static List<int> GetInput()
@@ -75,7 +77,7 @@ public static class OptionsController
         } while (true);
     }
 
-    private static List<int> GetCoordinates(int boardSize)
+    private static List<int> GetCoordinates(int boardSize, int gridSize)
     {
         do
         {
@@ -87,11 +89,11 @@ public static class OptionsController
                 {
                     var list = inputSplit.Select(number => int.Parse(number)).ToList();
 
-                    if (list[0] >= 0 && list[1] >= 0 && list[0] <= boardSize - 1 && list[1] <= boardSize - 1)
+                    if (list[0] >= 0 && list[1] >= 0 && list[0] + gridSize - 1 < boardSize && list[1] + gridSize - 1 < boardSize)
                     {
                         return list;
                     }
-                    Console.WriteLine("Invalid input.");
+                    Console.WriteLine("Grid must fit inside the board!");
                 }
                 else
                 {
