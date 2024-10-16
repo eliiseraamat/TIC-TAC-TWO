@@ -158,13 +158,23 @@ public class TicTacTwoBrain
                _gameState.PlayerOPieces <= _gameState.GameConfiguration.Pieces - _gameState.GameConfiguration.MovePieceAfterMoves;
     }
 
-    public bool WinningCondition()
+    public EGamePiece WinningCondition()
     {
-        return CheckWinConditionHorizontally() || CheckWinConditionVertically() 
-                                               || CheckWinConditionDiagonally1() || CheckWinConditionDiagonally2();
+        if (CheckWinConditionHorizontally() == EGamePiece.O || CheckWinConditionVertically() == EGamePiece.O ||
+            CheckWinConditionDiagonally1() == EGamePiece.O || CheckWinConditionDiagonally2() == EGamePiece.O)
+        {
+            return EGamePiece.O;
+        }
+
+        if (CheckWinConditionHorizontally() == EGamePiece.X || CheckWinConditionVertically() == EGamePiece.X ||
+            CheckWinConditionDiagonally1() == EGamePiece.X || CheckWinConditionDiagonally2() == EGamePiece.X)
+        {
+            return EGamePiece.X;
+        }
+        return EGamePiece.Empty;
     }
 
-    private bool CheckWinConditionHorizontally()
+    private EGamePiece CheckWinConditionHorizontally()
     {
         for (var y = GridCoordinates[1]; y < GridCoordinates[1] + GridSize; y++)
         {
@@ -188,14 +198,14 @@ public class TicTacTwoBrain
 
                 if (count == _gameState.GameConfiguration.WinCondition)
                 {
-                    return true;
+                    return piece;
                 }
             }
         }
-        return false;
+        return EGamePiece.Empty;
     }
 
-    private bool CheckWinConditionVertically()
+    private EGamePiece CheckWinConditionVertically()
     {
         for (var x = GridCoordinates[0]; x < GridCoordinates[0] + GridSize; x++)
         {
@@ -219,14 +229,14 @@ public class TicTacTwoBrain
 
                 if (count == _gameState.GameConfiguration.WinCondition)
                 {
-                    return true;
+                    return piece;
                 }
             }
         }
-        return false;
+        return EGamePiece.Empty;
     }
 
-    private bool CheckWinConditionDiagonally1()
+    private EGamePiece CheckWinConditionDiagonally1()
     {
         for (var x = GridCoordinates[0]; x < GridCoordinates[0] + GridSize; x++)
         {
@@ -252,7 +262,7 @@ public class TicTacTwoBrain
 
                 if (count == _gameState.GameConfiguration.WinCondition)
                 {
-                    return true;
+                    return piece;
                 }
 
                 y++;
@@ -285,15 +295,15 @@ public class TicTacTwoBrain
 
                     if (count == _gameState.GameConfiguration.WinCondition)
                     {
-                        return true;
+                        return piece;
                     }
                 }
             }
         }
-        return false;
+        return EGamePiece.Empty;
     }
 
-    private bool CheckWinConditionDiagonally2()
+    private EGamePiece CheckWinConditionDiagonally2()
     {
         for (var x = GridCoordinates[0] + GridSize - 1; x >= GridCoordinates[0]; x--)
         {
@@ -319,7 +329,7 @@ public class TicTacTwoBrain
 
                 if (count == _gameState.GameConfiguration.WinCondition)
                 {
-                    return true;
+                    return piece;
                 }
 
                 y++;
@@ -351,11 +361,11 @@ public class TicTacTwoBrain
 
                     if (count == _gameState.GameConfiguration.WinCondition)
                     {
-                        return true;
+                        return piece;
                     }
                 }
             }
         }
-        return false;
+        return EGamePiece.Empty;
     }
 }

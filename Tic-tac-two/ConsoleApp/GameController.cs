@@ -53,7 +53,7 @@ public static class GameController
 
     }
 
-    private static string GameLoop(TicTacTwoBrain gameInstance)
+    private static EGamePiece GameLoop(TicTacTwoBrain gameInstance)
     {
         do
         {
@@ -69,24 +69,26 @@ public static class GameController
             
             var playerPieces = player == EGamePiece.X ? gameInstance.PlayerXPieces : gameInstance.PlayerOPieces;
 
-            var userChoice = DisplayChoices(gameInstance, name, playerPieces);
+            var userChoice = Display(gameInstance, name, playerPieces);
 
             if (userChoice == "-")
             {
-                return default!;
+                return EGamePiece.Empty;
             }
             
-            MakeMove(gameInstance, userChoice);
+            MakeMove(gameInstance, userChoice, playerPieces);
 
-            if (gameInstance.WinningCondition())
+            var winnerPiece = gameInstance.WinningCondition();
+
+            if (winnerPiece != EGamePiece.Empty)
             {
-                return name;
+                return winnerPiece;
             }
 
         } while (true);
     }
 
-    private static string DisplayChoices(TicTacTwoBrain gameInstance, string name, int playerPieces)
+    private static string Display(TicTacTwoBrain gameInstance, string name, int playerPieces)
     {
         Console.WriteLine($"{name}'s turn");
         
@@ -95,7 +97,14 @@ public static class GameController
         Console.WriteLine($"{gameInstance.PlayerX} has {gameInstance.PlayerXPieces} pieces left");
         
         Console.WriteLine($"{gameInstance.PlayerO} has {gameInstance.PlayerOPieces} pieces left");
-        
+
+        var userChoice = DisplayChoices(gameInstance, playerPieces);
+
+        return userChoice;
+    }
+
+    private static string DisplayChoices(TicTacTwoBrain gameInstance, int playerPieces)
+    {
         Console.WriteLine();
         
         var userChoice = "";
@@ -109,21 +118,26 @@ public static class GameController
         {
             case "-":
                 break;
+            case "S":
+                break;
             case "P":
-                Console.WriteLine("Give old coordinates and new coordinates for your piece <x,y>;<x,y> or save:");
+                Console.WriteLine("Give old coordinates and new coordinates for your piece <x,y>;<x,y>:");
                 break;
             case "G":
-                Console.WriteLine("Give grid coordinates <x,y> or save:");
+                Console.WriteLine("Give grid coordinates <x,y>:");
+                break;
+            case "N" :
+                Console.WriteLine("Give the coordinates of the new piece <x,y>:");
                 break;
             default:
-                Console.WriteLine("Give the coordinates of the new piece <x,y> or save:");
+                Console.WriteLine("Give the coordinates of the new piece <x,y> or save game (S):");
                 break;
         }
 
         return userChoice;
     }
 
-    private static string EndGame(string player, TicTacTwoBrain gameInstance)
+    private static string EndGame(EGamePiece player, TicTacTwoBrain gameInstance)
     {
         Console.Clear();
             
@@ -131,7 +145,7 @@ public static class GameController
             
         ConsoleUI.Visualizer.DrawBoard(gameInstance);
 
-        if (player == default!)
+        if (player == EGamePiece.Empty)
         {
             Console.WriteLine("It's a draw!");
         }
@@ -172,13 +186,6 @@ public static class GameController
                 MenuItemAction = () => returnValue
             });
         }
-        
-        // configMenuItems.Add(new MenuItem()
-        // {
-        //     Title = "Customize",
-        //     Shortcut = "C",
-        //     MenuItemAction = () => "C"
-        // });
     
         var configMenu = new Menu(
             EMenuLevel.Secondary, 
@@ -214,8 +221,11 @@ public static class GameController
                 choices.Add("G");
                 Console.WriteLine("G) Move grid one spot horizontally, vertically or diagonally");
             }
+            
+            choices.Add("S");
+            Console.WriteLine("S) Save game");
 
-            if (choices.Count == 0)
+            if (choices.Count == 1)
             {
                 return "-";
             }
@@ -232,15 +242,16 @@ public static class GameController
 
     private static List<int> GetCoordinates(string userChoice, TicTacTwoBrain gameInstance)
     {
-        // TODO: save uude kohta???
         do
         {
             var input = Console.ReadLine()!;
-            if (input.Equals("save", StringComparison.CurrentCultureIgnoreCase))
+            if (userChoice == "" && input.ToUpper().Equals("S", StringComparison.CurrentCultureIgnoreCase))
             {
                 GameRepository.SaveGame(gameInstance.GetGameStateJson(), gameInstance.GetGameConfigName());
-            } 
-            else if (userChoice == "P")
+                Console.WriteLine("Saved game, give coordinates");
+                continue;
+            }
+            if (userChoice == "P")
             {
                 try
                 {
@@ -303,11 +314,17 @@ public static class GameController
         } while (true);
     }
 
-    private static void MakeMove(TicTacTwoBrain gameInstance, string userChoice)
+    private static void MakeMove(TicTacTwoBrain gameInstance, string userChoice, int playerPieces)
     {
         var madeMove = false;
         do
         {
+            if (userChoice == "S")
+            {
+                GameRepository.SaveGame(gameInstance.GetGameStateJson(), gameInstance.GetGameConfigName());
+                Console.WriteLine("Saved game");
+                userChoice = DisplayChoices(gameInstance, playerPieces);
+            }
             var coordinates = GetCoordinates(userChoice, gameInstance);
             if ((userChoice == "" || userChoice == "N") && gameInstance.MakeAMove(coordinates[0], coordinates[1]))
             {
@@ -326,5 +343,10 @@ public static class GameController
                 Console.WriteLine("Wrong coordinates");
             }
         } while (madeMove == false);
+    }
+
+    public static string LoadGame()
+    {
+        return "";
     }
 }
