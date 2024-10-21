@@ -9,7 +9,7 @@ public static class Visualizer
         var coordinates = gameInstance.GridCoordinates;
         var gridSize = gameInstance.GridSize;
         
-        Console.Write("   ");
+        Console.Write("  ");
         for (var x = 0; x < gameInstance.DimX; x++)
         {
             Console.Write($" {x}  ");
@@ -18,7 +18,7 @@ public static class Visualizer
         
         for (var y = 0; y < gameInstance.DimY; y++)
         {
-            Console.Write($" {y} ");
+            Console.Write($" {y}");
             for (var x = 0; x < gameInstance.DimX; x++)
             {
                 if (y >= coordinates[1] && y <= coordinates[1] + gridSize - 1 && x >= coordinates[0] && x <= coordinates[0] + gridSize - 1)

@@ -28,13 +28,19 @@ public static class GameController
         }
         
         var gameInstance= new TicTacTwoBrain(chosenConfig);
-        
+
+        return GameLoop(gameInstance);
+
+    }
+
+    private static string GameLoop(TicTacTwoBrain gameInstance)
+    {
         string choice;
         do
         {
             Console.Clear();
             
-            var winner = GameLoop(gameInstance);
+            var winner = Game(gameInstance);
 
             choice = EndGame(winner, gameInstance);
 
@@ -50,10 +56,9 @@ public static class GameController
         } while (choice == "R");
 
         return "r";
-
     }
-
-    private static EGamePiece GameLoop(TicTacTwoBrain gameInstance)
+    
+    private static EGamePiece Game(TicTacTwoBrain gameInstance)
     {
         do
         {
@@ -344,9 +349,41 @@ public static class GameController
             }
         } while (madeMove == false);
     }
-
+    
     public static string LoadGame()
     {
-        return "";
+        var gameMenuItems = new List<MenuItem>();
+
+        for (var i = 0; i < GameRepository.GetGameNames().Count; i++)
+        {
+            var returnValue = i.ToString();
+            gameMenuItems.Add(new MenuItem()
+            {
+                Title = GameRepository.GetGameNames()[i],
+                Shortcut = (i+1).ToString(),
+                MenuItemAction = () => returnValue
+            });
+        }
+    
+        var configMenu = new Menu(
+            EMenuLevel.Secondary, 
+            "TIC-TAC-TWO - load game", 
+            gameMenuItems,
+            isCustomMenu: true);
+        
+        var chosenGameShortcut = configMenu.Run();
+        
+        if (!int.TryParse(chosenGameShortcut, out var configNo))
+        {
+            ChooseConfiguration();
+        }
+
+        var chosenGameName = GameRepository.GetGameNames()[configNo];
+        
+        var chosenGame = GameRepository.LoadGame(chosenGameName);
+        
+        var gameInstance= new TicTacTwoBrain(chosenGame);
+
+        return GameLoop(gameInstance);
     }
 }

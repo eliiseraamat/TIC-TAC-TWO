@@ -36,7 +36,7 @@ public class ConfigRepositoryJson : IConfigRepository
             foreach (var optionName in optionNames)
             {
                 var gameOption = hardCodedRepo.GetConfigurationByName(optionName);
-                var optionJsonStr = System.Text.Json.JsonSerializer.Serialize(gameOption);
+                var optionJsonStr = JsonSerializer.Serialize(gameOption);
                 File.WriteAllText(FileHelper.BasePath + gameOption.Name + FileHelper.ConfigExtension, optionJsonStr);
             }
         }

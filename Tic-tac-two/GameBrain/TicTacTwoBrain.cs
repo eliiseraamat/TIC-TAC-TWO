@@ -22,7 +22,13 @@ public class TicTacTwoBrain
             gameConfiguration.Pieces, 
             new List<int>(gameConfiguration.GridCoordinates), 
             gameConfiguration.PlayerX, 
-            gameConfiguration.PlayerO, _startingPiece);
+            gameConfiguration.PlayerO, 
+            _startingPiece);
+    }
+    
+    public TicTacTwoBrain(GameState gameState)
+    {
+        _gameState = gameState;
     }
     
     

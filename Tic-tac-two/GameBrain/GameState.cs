@@ -7,15 +7,26 @@ public class GameState
     
     public GameConfiguration GameConfiguration { get; set; }
 
-    public List<int> GridCoordinates { get; set; }
+    public List<int> GridCoordinates { get; set; } = [1, 1];
     
     public int PlayerXPieces { get; set; }
     
     public int PlayerOPieces { get; set; }
-    
-    public string PlayerX { get; }
 
-    public string PlayerO { get; }
+    public string PlayerX { get; set; } = "X";
+
+    public string PlayerO { get; set; } = "O";
+    
+    public EGamePiece StartingPiece { get; set; }
+
+    public GameState() 
+    {
+        GameBoard = new EGamePiece[5][];
+        for (int i = 0; i < GameBoard.Length; i++)
+        {
+            GameBoard[i] = new EGamePiece[5];
+        }
+    }
 
     public GameState(GameConfiguration gameConfiguration, EGamePiece[][] gameBoard, int playerXPieces, int playerOPieces, List<int> gridCoordinates, string playerX, string playerO, EGamePiece startingPiece)
     {
@@ -26,7 +37,7 @@ public class GameState
         GridCoordinates = gridCoordinates;
         PlayerX = playerX;
         PlayerO = playerO;
-        NextMoveBy = startingPiece != EGamePiece.X ? EGamePiece.O : gameConfiguration.StartingPiece;
+        NextMoveBy = startingPiece;
     }
 
     public override string ToString()
