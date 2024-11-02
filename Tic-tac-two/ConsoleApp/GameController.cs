@@ -6,21 +6,21 @@ namespace Tic_tac_two2;
 
 public static class GameController
 {
-    private static readonly IConfigRepository ConfigRepository = new ConfigRepositoryJson();
-    private static readonly IGameRepository GameRepository = new GameRepositoryJson();
+    //private static readonly IConfigRepository ConfigRepository = new ConfigRepositoryJson();
+    private static readonly IConfigRepository ConfigRepository = new ConfigRepositoryDb();
+    //private static readonly IGameRepository GameRepository = new GameRepositoryJson();
+    private static readonly IGameRepository GameRepository = new GameRepositoryDb();
     
     public static string MainLoop()
     {
         var chosenConfigShortcut = ChooseConfiguration();
-        
-        GameConfiguration chosenConfig;
- 
+
         if (!int.TryParse(chosenConfigShortcut, out var configNo))
         {
-            ChooseConfiguration();
+            return chosenConfigShortcut;
         }
 
-        chosenConfig = ConfigRepository.GetConfigurationByName(ConfigRepository.GetConfigurationNames()[configNo]);
+        var chosenConfig = ConfigRepository.GetConfigurationByName(ConfigRepository.GetConfigurationNames()[configNo]);
         
         if (chosenConfig.Name == "Customize")
         {
@@ -364,6 +364,11 @@ public static class GameController
                 MenuItemAction = () => returnValue
             });
         }
+
+        if (gameMenuItems.Count == 0)
+        {
+            return "r";
+        }
     
         var configMenu = new Menu(
             EMenuLevel.Secondary, 
@@ -375,7 +380,7 @@ public static class GameController
         
         if (!int.TryParse(chosenGameShortcut, out var configNo))
         {
-            ChooseConfiguration();
+            return chosenGameShortcut;
         }
 
         var chosenGameName = GameRepository.GetGameNames()[configNo];

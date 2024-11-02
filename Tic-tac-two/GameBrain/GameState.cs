@@ -26,6 +26,8 @@ public class GameState
         {
             GameBoard[i] = new EGamePiece[5];
         }
+
+        GameConfiguration = default!;
     }
 
     public GameState(GameConfiguration gameConfiguration, EGamePiece[][] gameBoard, int playerXPieces, int playerOPieces, List<int> gridCoordinates, string playerX, string playerO, EGamePiece startingPiece)

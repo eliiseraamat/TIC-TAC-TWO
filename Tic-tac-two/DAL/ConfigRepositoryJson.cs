@@ -19,7 +19,7 @@ public class ConfigRepositoryJson : IConfigRepository
     {
         var configJsonStr = File.ReadAllText(FileHelper.BasePath + name + FileHelper.ConfigExtension);
         var config = JsonSerializer.Deserialize<GameConfiguration>(configJsonStr);
-        return config;
+        return config ?? throw new InvalidOperationException();
     }
 
     private void CheckAndCreateInitialConfig()
