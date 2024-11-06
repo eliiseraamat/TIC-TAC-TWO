@@ -1,5 +1,4 @@
-﻿using System.Security.AccessControl;
-using DAL;
+﻿using DAL;
 using Microsoft.EntityFrameworkCore;
 using Tic_tac_two2;
 
@@ -12,11 +11,8 @@ var contextOptions = new DbContextOptionsBuilder<AppDbContext>()
 
 using var ctx = new AppDbContext(contextOptions);
         
-ctx.Database.Migrate();*/
+ctx.Database.Migrate();
 
-//Console.WriteLine(ctx.GameStates.Count());
-
-
+Console.WriteLine(ctx.Configurations.Count());*/
 
 Menus.MainMenu.Run();
-

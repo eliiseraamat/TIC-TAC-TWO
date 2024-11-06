@@ -23,10 +23,19 @@ public class GameRepositoryDb : IGameRepository
     
     public void SaveGame(string jsonStateString, string gameConfigName)
     {
+        var configuration = _ctx.Configurations.FirstOrDefault(c => c.Name == gameConfigName);
+        
+        if (configuration == null)
+        {
+            throw new Exception($"Configuration with name '{gameConfigName}' not found.");
+        }
+        
         var gameState = new SaveGame()
         { 
             Name = gameConfigName + " " + DateTime.Now.ToString("yy-MM-dd_HH-mm-ss"), 
             Game = jsonStateString,
+            ConfigurationId = configuration.Id,
+            Configuration = configuration
         };
 
         _ctx.GameStates.Add(gameState);
@@ -36,11 +45,12 @@ public class GameRepositoryDb : IGameRepository
     public GameState LoadGame(string gameName)
     {
         var games = _ctx.GameStates;
-        foreach (var gameJson in games)
+        foreach (var game in games)
         {
-            if (gameJson.Name == gameName)
+            if (game.Name == gameName)
             {
-                JsonSerializer.Deserialize<GameState>(gameJson.Game);
+                var gameState = JsonSerializer.Deserialize<GameState>(game.Game);
+                if (gameState != null) return gameState;
             }
         }
         throw new Exception("Failed to load the game.");
@@ -48,13 +58,8 @@ public class GameRepositoryDb : IGameRepository
 
     public List<string> GetGameNames()
     {
-        var names = new List<string>();
         var games = _ctx.GameStates;
-        foreach (var game in games)
-        {
-            names.Add(game.Name);
-        }
 
-        return names;
+        return games.Select(game => game.Name).ToList();
     }
 }

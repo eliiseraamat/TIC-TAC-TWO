@@ -17,11 +17,8 @@ public class ConfigRepositoryDb : IConfigRepository
             .EnableDetailedErrors()
             .EnableSensitiveDataLogging()
             .Options;
-
-        //using var ctx = new AppDbContext(contextOptions);
-        _ctx = new AppDbContext(contextOptions);
         
-        //_ctx.Database.Migrate();
+        _ctx = new AppDbContext(contextOptions);
         
         CheckAndCreateInitialConfig(_ctx);
     }
@@ -29,54 +26,44 @@ public class ConfigRepositoryDb : IConfigRepository
     public List<string> GetConfigurationNames()
     {
        var configs = _ctx.Configurations.ToList();
-       
-       List<string> names = new List<string>();
 
-       foreach (var configJson in configs)
-       {
-           var config = JsonSerializer.Deserialize<GameConfiguration>(configJson.GameConfig);
-           names.Add(config?.Name);
-       }
-       return names;
+       return configs.Select(config => config.Name).ToList();
     }
 
     public GameConfiguration GetConfigurationByName(string name)
     {
         var configs = _ctx.Configurations.ToList();
 
-        foreach (var configJson in configs)
+        foreach (var config in configs)
         {
-            var config = JsonSerializer.Deserialize<GameConfiguration>(configJson.GameConfig);
-            if (config == null) throw new Exception($"Configuration with name '{name}' not found.");
-            if (config.Name == name)
-            {
-                return config;
-            }
+            if (config.GameConfig == null) throw new Exception($"Configuration with name '{name}' not found.");
+            if (config.Name != name) continue;
+            var gameConfig = JsonSerializer.Deserialize<GameConfiguration>(config.GameConfig);
+            if (gameConfig == null) throw new Exception($"Configuration with name '{name}' not found.");
+            return gameConfig;
         }
         throw new Exception($"Configuration with name '{name}' not found.");
     }
     
     private void CheckAndCreateInitialConfig(AppDbContext ctx)
     {
-        if (!ctx.Configurations.Any())
+        if (ctx.Configurations.Any()) return;
+        var hardCodedRepo = new ConfigRepositoryInMemory();
+        var names = hardCodedRepo.GetConfigurationNames();
+
+        foreach (var name in names)
         {
-            var hardCodedRepo = new ConfigRepositoryInMemory();
-            var names = hardCodedRepo.GetConfigurationNames();
-
-            foreach (var name in names)
+            var gameOption = hardCodedRepo.GetConfigurationByName(name);
+            
+            var config = new Configuration
             {
-                var gameOption = hardCodedRepo.GetConfigurationByName(name);
+                Name = name,
+                GameConfig = JsonSerializer.Serialize(gameOption),
+            };
 
-                
-                var config = new Configuration
-                {
-                    GameConfig = JsonSerializer.Serialize(gameOption),
-                };
-
-                ctx.Configurations.Add(config);
-            }
-
-            ctx.SaveChanges();
+            ctx.Configurations.Add(config);
         }
+
+        ctx.SaveChanges();
     }
 }
