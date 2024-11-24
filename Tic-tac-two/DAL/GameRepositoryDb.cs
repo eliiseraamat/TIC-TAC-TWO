@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Diagnostics;
+using System.Text.Json;
 using Domain;
 using GameBrain;
 using Microsoft.EntityFrameworkCore;
@@ -7,21 +8,14 @@ namespace DAL;
 
 public class GameRepositoryDb : IGameRepository
 {
-    private readonly string _connectionString = $"Data Source={FileHelper.BasePath}app.db";
-    private AppDbContext _ctx;
+    private readonly AppDbContext _ctx;
     
-    public GameRepositoryDb()
+    public GameRepositoryDb(AppDbContext context)
     {
-        var contextOptions = new DbContextOptionsBuilder<AppDbContext>()
-            .UseSqlite(_connectionString)
-            .EnableDetailedErrors()
-            .EnableSensitiveDataLogging()
-            .Options;
-        
-        _ctx = new AppDbContext(contextOptions);
+        _ctx = context;
     }
     
-    public void SaveGame(string jsonStateString, string gameConfigName)
+    public int SaveGame(string jsonStateString, string gameConfigName)
     {
         var configuration = _ctx.Configurations.FirstOrDefault(c => c.Name == gameConfigName);
         
@@ -40,6 +34,7 @@ public class GameRepositoryDb : IGameRepository
 
         _ctx.GameStates.Add(gameState);
         _ctx.SaveChanges();
+        return gameState.Id;
     }
 
     public GameState LoadGame(string gameName)
@@ -48,6 +43,20 @@ public class GameRepositoryDb : IGameRepository
         foreach (var game in games)
         {
             if (game.Name == gameName)
+            {
+                var gameState = JsonSerializer.Deserialize<GameState>(game.Game);
+                if (gameState != null) return gameState;
+            }
+        }
+        throw new Exception("Failed to load the game.");
+    }
+    
+    public GameState LoadGame(int id)
+    {
+        var games = _ctx.GameStates;
+        foreach (var game in games)
+        {
+            if (game.Id == id)
             {
                 var gameState = JsonSerializer.Deserialize<GameState>(game.Game);
                 if (gameState != null) return gameState;

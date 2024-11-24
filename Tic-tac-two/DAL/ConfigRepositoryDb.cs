@@ -1,25 +1,16 @@
 ﻿using System.Text.Json;
 using Domain;
 using GameBrain;
-using Microsoft.EntityFrameworkCore;
 
 namespace DAL;
 
 public class ConfigRepositoryDb : IConfigRepository
 {
-    private readonly string _connectionString = $"Data Source={FileHelper.BasePath}app.db";
-    private AppDbContext _ctx;
+    private readonly AppDbContext _ctx;
     
-    public ConfigRepositoryDb()
+    public ConfigRepositoryDb(AppDbContext context)
     {
-        var contextOptions = new DbContextOptionsBuilder<AppDbContext>()
-            .UseSqlite(_connectionString)
-            .EnableDetailedErrors()
-            .EnableSensitiveDataLogging()
-            .Options;
-        
-        _ctx = new AppDbContext(contextOptions);
-        
+        _ctx = context;
         CheckAndCreateInitialConfig(_ctx);
     }
     

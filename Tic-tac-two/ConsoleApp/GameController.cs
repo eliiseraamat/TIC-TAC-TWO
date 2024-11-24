@@ -6,13 +6,14 @@ namespace Tic_tac_two2;
 
 public static class GameController
 {
-    //private static readonly IConfigRepository ConfigRepository = new ConfigRepositoryJson();
-    private static readonly IConfigRepository ConfigRepository = new ConfigRepositoryDb();
-    //private static readonly IGameRepository GameRepository = new GameRepositoryJson();
-    private static readonly IGameRepository GameRepository = new GameRepositoryDb();
+    private static IConfigRepository _configRepository = default!;
+    private static IGameRepository _gameRepository = default!;
     
-    public static string MainLoop()
+    public static string MainLoop(IConfigRepository configRepository, IGameRepository gameRepository)
     {
+        _configRepository = configRepository;
+        _gameRepository = gameRepository;
+        
         var chosenConfigShortcut = ChooseConfiguration();
 
         if (!int.TryParse(chosenConfigShortcut, out var configNo))
@@ -20,7 +21,7 @@ public static class GameController
             return chosenConfigShortcut;
         }
 
-        var chosenConfig = ConfigRepository.GetConfigurationByName(ConfigRepository.GetConfigurationNames()[configNo]);
+        var chosenConfig = _configRepository.GetConfigurationByName(_configRepository.GetConfigurationNames()[configNo]);
         
         if (chosenConfig.Name == "Customize")
         {
@@ -181,12 +182,12 @@ public static class GameController
     {
         var configMenuItems = new List<MenuItem>();
 
-        for (var i = 0; i < ConfigRepository.GetConfigurationNames().Count; i++)
+        for (var i = 0; i < _configRepository.GetConfigurationNames().Count; i++)
         {
             var returnValue = i.ToString();
             configMenuItems.Add(new MenuItem()
             {
-                Title = ConfigRepository.GetConfigurationNames()[i],
+                Title = _configRepository.GetConfigurationNames()[i],
                 Shortcut = (i+1).ToString(),
                 MenuItemAction = () => returnValue
             });
@@ -252,7 +253,7 @@ public static class GameController
             var input = Console.ReadLine()!;
             if (userChoice == "" && input.ToUpper().Equals("S", StringComparison.CurrentCultureIgnoreCase))
             {
-                GameRepository.SaveGame(gameInstance.GetGameStateJson(), gameInstance.GetGameConfigName());
+                _gameRepository.SaveGame(gameInstance.GetGameStateJson(), gameInstance.GetGameConfigName());
                 Console.WriteLine("Saved game, give coordinates");
                 continue;
             }
@@ -326,7 +327,7 @@ public static class GameController
         {
             if (userChoice == "S")
             {
-                GameRepository.SaveGame(gameInstance.GetGameStateJson(), gameInstance.GetGameConfigName());
+                _gameRepository.SaveGame(gameInstance.GetGameStateJson(), gameInstance.GetGameConfigName());
                 Console.WriteLine("Saved game");
                 userChoice = DisplayChoices(gameInstance, playerPieces);
             }
@@ -350,16 +351,19 @@ public static class GameController
         } while (madeMove == false);
     }
     
-    public static string LoadGame()
+    public static string LoadGame(IConfigRepository configRepository, IGameRepository gameRepository)
     {
+        _configRepository = configRepository;
+        _gameRepository = gameRepository;
+        
         var gameMenuItems = new List<MenuItem>();
 
-        for (var i = 0; i < GameRepository.GetGameNames().Count; i++)
+        for (var i = 0; i < _gameRepository.GetGameNames().Count; i++)
         {
             var returnValue = i.ToString();
             gameMenuItems.Add(new MenuItem()
             {
-                Title = GameRepository.GetGameNames()[i],
+                Title = _gameRepository.GetGameNames()[i],
                 Shortcut = (i+1).ToString(),
                 MenuItemAction = () => returnValue
             });
@@ -383,9 +387,9 @@ public static class GameController
             return chosenGameShortcut;
         }
 
-        var chosenGameName = GameRepository.GetGameNames()[configNo];
+        var chosenGameName = _gameRepository.GetGameNames()[configNo];
         
-        var chosenGame = GameRepository.LoadGame(chosenGameName);
+        var chosenGame = _gameRepository.LoadGame(chosenGameName);
         
         var gameInstance= new TicTacTwoBrain(chosenGame);
 

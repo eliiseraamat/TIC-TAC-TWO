@@ -1,0 +1,26 @@
+﻿@page
+@using GameBrain
+@model WebApp.Pages.PlayGame
+
+Next move by: @Model.TicTacTwoBrain.NextMoveBy
+
+<table class="" border="1">
+    @for (var y = 0; y < Model.TicTacTwoBrain.DimY; y++)
+    {
+        <tr>
+            @for (var x = 0; x < Model.TicTacTwoBrain.DimX; x++)
+            {
+                <td>
+                    @if (Model.TicTacTwoBrain.GameBoard[x][y] == EGamePiece.Empty)
+                    {
+                        <a asp-route-x="@x" asp-route-y="@y" asp-route-GameId="@Model.GameId">XYZ</a>
+                    }
+                    else
+                    {
+                        @Model.TicTacTwoBrain.GameBoard[x][y]
+                    }
+                </td>
+            }
+        </tr>
+    }
+</table>
