@@ -5,11 +5,12 @@ namespace DAL;
 
 public class GameRepositoryJson : IGameRepository
 {
-    public int SaveGame(string jsonStateString, string gameConfigName)
+    public string SaveGame(string jsonStateString, string gameConfigName)
     {
-        var fileName = FileHelper.BasePath + gameConfigName + " " + DateTime.Now.ToString("yy-MM-dd_HH-mm-ss") + FileHelper.GameExtension;
+        var gameName = gameConfigName + " " + DateTime.Now.ToString("yy-MM-dd_HH-mm-ss");
+        var fileName = FileHelper.BasePath + gameName + FileHelper.GameExtension;
         File.WriteAllText(fileName, jsonStateString);
-        return -1;
+        return gameName;
     }
 
     public GameState LoadGame(string fileName)
@@ -23,11 +24,6 @@ public class GameRepositoryJson : IGameRepository
     
         return config;
     }
-    
-    public GameState LoadGame(int id)
-    {
-        throw new NotImplementedException();
-    }
 
     public List<string> GetGameNames()
     {
@@ -35,5 +31,12 @@ public class GameRepositoryJson : IGameRepository
             .GetFiles(FileHelper.BasePath, FileHelper.SearchPattern + FileHelper.GameExtension)
             .Select(fileNameParts => Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(fileNameParts)))
             .ToList();
+    }
+
+    public string UpdateGame(string jsonStateString, string gameName)
+    {
+        var fileName = FileHelper.BasePath + gameName + FileHelper.GameExtension;
+        File.WriteAllText(fileName, jsonStateString);
+        return gameName;
     }
 }

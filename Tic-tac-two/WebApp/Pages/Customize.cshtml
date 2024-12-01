@@ -1,0 +1,44 @@
+﻿@page
+@model WebApp.Pages.Customize
+
+<div class="form-container">
+    <form method="post">
+        <div class="form-group">
+            Choose following options: 
+        </div>
+        <div class="form-group">
+            <label asp-for="BoardSize" class="control-label">Board size: </label>
+            <input asp-for="BoardSize"/>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="GridSize" class="control-label">Grid size: </label>
+            <input asp-for="GridSize"/>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="PieceNr" class="control-label">Number of pieces for each player: </label>
+            <input asp-for="PieceNr"/>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="WinCondition" class="control-label">Choose numbers in line to win: </label>
+            <input asp-for="WinCondition"/>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="MovePieceAfterMoves" class="control-label">Choose number of moves for one player after which the player have more options: </label>
+            <input asp-for="MovePieceAfterMoves"/>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="x" class="control-label">x: </label>
+            <input asp-for="x"/>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="y" class="control-label">y: </label>
+            <input asp-for="y"/>
+        </div>
+    </form>
+</div>

@@ -43,6 +43,11 @@ public static class GameController
             
             var winner = Game(gameInstance);
 
+            if (winner == null)
+            {
+                return "r";
+            }
+
             choice = EndGame(winner, gameInstance);
 
             if (choice == "R")
@@ -59,7 +64,7 @@ public static class GameController
         return "r";
     }
     
-    private static EGamePiece Game(TicTacTwoBrain gameInstance)
+    private static EGamePiece? Game(TicTacTwoBrain gameInstance)
     {
         do
         {
@@ -82,7 +87,12 @@ public static class GameController
                 return EGamePiece.Empty;
             }
             
-            MakeMove(gameInstance, userChoice, playerPieces);
+            var move = MakeMove(gameInstance, userChoice, playerPieces);
+
+            if (move == "q")
+            {
+                break;
+            }
 
             var winnerPiece = gameInstance.WinningCondition();
 
@@ -92,6 +102,8 @@ public static class GameController
             }
 
         } while (true);
+
+        return null;
     }
 
     private static string Display(TicTacTwoBrain gameInstance, string name, int playerPieces)
@@ -113,18 +125,13 @@ public static class GameController
     {
         Console.WriteLine();
         
-        var userChoice = "";
-        
-        if (gameInstance.EnoughMovesForMoreOptions())
-        {
-            userChoice = GetUserChoice(playerPieces, gameInstance);
-        }
-        
+        var userChoice = GetUserChoice(playerPieces, gameInstance);
+
         switch (userChoice)
         {
             case "-":
-                break;
             case "S":
+            case "Q":
                 break;
             case "P":
                 Console.WriteLine("Give old coordinates and new coordinates for your piece <x,y>;<x,y>:");
@@ -135,15 +142,12 @@ public static class GameController
             case "N" :
                 Console.WriteLine("Give the coordinates of the new piece <x,y>:");
                 break;
-            default:
-                Console.WriteLine("Give the coordinates of the new piece <x,y> or save game (S):");
-                break;
         }
 
         return userChoice;
     }
 
-    private static string EndGame(EGamePiece player, TicTacTwoBrain gameInstance)
+    private static string EndGame(EGamePiece? player, TicTacTwoBrain gameInstance)
     {
         Console.Clear();
             
@@ -206,39 +210,67 @@ public static class GameController
     {
         do
         {
-            var choices = new List<string>();
+            Console.WriteLine("Choose one of the following options: ");
             
-            Console.WriteLine("Choose one of the following options:");
-
+            var choices = new List<MenuItem>();
+            
             if (playerPieces > 0 && !gameInstance.IsGridFull())
             {
-                choices.Add("N");
-                Console.WriteLine("N) Put a new piece on the grid");
+                choices.Add(new MenuItem()
+                {
+                    Title = "Put a new piece on the grid",
+                    Shortcut = "N",
+                    MenuItemAction = () => 0.ToString()
+                });
             }
 
-            if (!gameInstance.IsGridFull())
+            if (gameInstance.EnoughMovesForMoreOptions() && !gameInstance.IsGridFull())
             {
-                choices.Add("P");
-                Console.WriteLine("P) Move one of your pieces to another spot in the grid.");
+                choices.Add(new MenuItem()
+                {
+                    Title = "Move one of your pieces to another spot in the grid",
+                    Shortcut = "P",
+                    MenuItemAction = () => 0.ToString()
+                });
             }
 
-            if (gameInstance.GridSize < gameInstance.DimX)
+            if (gameInstance.EnoughMovesForMoreOptions() && gameInstance.GridSize < gameInstance.DimX)
             {
-                choices.Add("G");
-                Console.WriteLine("G) Move grid one spot horizontally, vertically or diagonally");
+                choices.Add(new MenuItem()
+                {
+                    Title = "Move grid one spot horizontally, vertically or diagonally",
+                    Shortcut = "G",
+                    MenuItemAction = () => 0.ToString()
+                });
             }
             
-            choices.Add("S");
-            Console.WriteLine("S) Save game");
-
-            if (choices.Count == 1)
+            choices.Add(new MenuItem()
+            {
+                Title = "Save game",
+                Shortcut = "S",
+                MenuItemAction = () => 0.ToString()
+            });
+            
+            choices.Add(new MenuItem()
+            {
+                Title = "Quit game",
+                Shortcut = "Q",
+                MenuItemAction = () => 0.ToString()
+            });
+            
+            if (choices.Count == 2)
             {
                 return "-";
             }
             
+            foreach (MenuItem item in choices)
+            {
+                Console.WriteLine(item.Shortcut + ") " + item.Title);
+            }
+            
             var input = Console.ReadLine()!;
             
-            if (choices.Contains(input.ToUpper()))
+            if (choices.Select(item => item.Shortcut).Contains(input.ToUpper()))
             {
                 return input.ToUpper();
             }
@@ -320,7 +352,7 @@ public static class GameController
         } while (true);
     }
 
-    private static void MakeMove(TicTacTwoBrain gameInstance, string userChoice, int playerPieces)
+    private static string MakeMove(TicTacTwoBrain gameInstance, string userChoice, int playerPieces)
     {
         var madeMove = false;
         do
@@ -331,8 +363,13 @@ public static class GameController
                 Console.WriteLine("Saved game");
                 userChoice = DisplayChoices(gameInstance, playerPieces);
             }
+            if (userChoice == "Q")
+            {
+                return "q";
+            }
             var coordinates = GetCoordinates(userChoice, gameInstance);
-            if ((userChoice == "" || userChoice == "N") && gameInstance.MakeAMove(coordinates[0], coordinates[1]))
+            //userChoice == "" || 
+            if (userChoice == "N" && gameInstance.MakeAMove(coordinates[0], coordinates[1]))
             {
                 madeMove = true;
             } else if (userChoice == "P" &&
@@ -349,6 +386,8 @@ public static class GameController
                 Console.WriteLine("Wrong coordinates");
             }
         } while (madeMove == false);
+
+        return "";
     }
     
     public static string LoadGame(IConfigRepository configRepository, IGameRepository gameRepository)

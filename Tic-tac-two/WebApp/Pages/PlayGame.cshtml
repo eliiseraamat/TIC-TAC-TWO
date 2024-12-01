@@ -1,8 +1,32 @@
 ﻿@page
 @using GameBrain
+@using Microsoft.EntityFrameworkCore
 @model WebApp.Pages.PlayGame
 
+@if (Model.Winner != EGamePiece.Empty)
+{
+    <div>
+        Winner is @Model.Winner
+    </div>
+}
+
 Next move by: @Model.TicTacTwoBrain.NextMoveBy
+
+@if (!string.IsNullOrWhiteSpace(Model.Error))
+{
+    <div class="alert alert-danger" role="alert">
+        @Model.Error
+    </div>
+}
+
+@Model.TicTacTwoBrain.PlayerX: has @Model.TicTacTwoBrain.PlayerXPieces pieces left <br/>
+@Model.TicTacTwoBrain.PlayerO: has @Model.TicTacTwoBrain.PlayerOPieces pieces left <br/>
+
+Choose one of the following options:
+@foreach (var choice in Model.Choices)
+{
+    <div>@choice</div>
+}
 
 <table class="" border="1">
     @for (var y = 0; y < Model.TicTacTwoBrain.DimY; y++)
@@ -13,7 +37,7 @@ Next move by: @Model.TicTacTwoBrain.NextMoveBy
                 <td>
                     @if (Model.TicTacTwoBrain.GameBoard[x][y] == EGamePiece.Empty)
                     {
-                        <a asp-route-x="@x" asp-route-y="@y" asp-route-GameId="@Model.GameId">XYZ</a>
+                        <a asp-route-x="@x" asp-route-y="@y" asp-route-GameName="@Model.GameName" asp-route-Piece="@Model.Piece">[<b></b>]</a>
                     }
                     else
                     {

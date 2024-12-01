@@ -15,7 +15,7 @@ public class GameRepositoryDb : IGameRepository
         _ctx = context;
     }
     
-    public int SaveGame(string jsonStateString, string gameConfigName)
+    public string SaveGame(string jsonStateString, string gameConfigName)
     {
         var configuration = _ctx.Configurations.FirstOrDefault(c => c.Name == gameConfigName);
         
@@ -34,7 +34,7 @@ public class GameRepositoryDb : IGameRepository
 
         _ctx.GameStates.Add(gameState);
         _ctx.SaveChanges();
-        return gameState.Id;
+        return gameState.Name;
     }
 
     public GameState LoadGame(string gameName)
@@ -70,5 +70,21 @@ public class GameRepositoryDb : IGameRepository
         var games = _ctx.GameStates;
 
         return games.Select(game => game.Name).ToList();
+    }
+
+    public string UpdateGame(string jsonStateString, string gameName)
+    {
+        var gameState = _ctx.GameStates.FirstOrDefault(g => g.Name == gameName);
+
+        if (gameState == null)
+        {
+            throw new Exception($"Game with name '{gameName}' not found.");
+        }
+        
+        gameState.Game = jsonStateString;
+        
+        _ctx.SaveChanges();
+        
+        return gameName;
     }
 }
