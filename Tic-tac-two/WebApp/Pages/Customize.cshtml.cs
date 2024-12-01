@@ -1,4 +1,5 @@
 ﻿using DAL;
+using GameBrain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -33,15 +34,32 @@ public class Customize : PageModel
     
     [BindProperty] 
     public int MovePieceAfterMoves { get; set; }
+
+    [BindProperty] 
+    public string x { get; set; } = default!;
     
     [BindProperty] 
-    public int x { get; set; }
-    
-    [BindProperty] 
-    public int y { get; set; }
+    public string o { get; set; } = default!;
 
     public void OnGet()
     {
         
+    }
+
+    public IActionResult OnPost()
+    {
+        var config = new GameConfiguration()
+        {
+            BoardSize = BoardSize,
+            GridSize = GridSize,
+            Pieces = PieceNr,
+            WinCondition = WinCondition,
+            MovePieceAfterMoves = MovePieceAfterMoves,
+            PlayerX = x,
+            PlayerO = o
+        };
+        var brain = new TicTacTwoBrain(config);
+        var gameName = _gameRepository.SaveGame(brain.GetGameStateJson(), ConfigName);
+        return RedirectToPage("/PlayGame", new { GameName = gameName, Piece = EGamePiece.X });
     }
 }

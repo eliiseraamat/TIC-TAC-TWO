@@ -9,12 +9,14 @@ public class PlayGame : PageModel
 {
     private readonly IConfigRepository _configRepository;
     private readonly IGameRepository _gameRepository;
+    private readonly ILogger<IndexModel> _logger;
 
 
-    public PlayGame(IConfigRepository configRepository, IGameRepository gameRepository)
+    public PlayGame(IConfigRepository configRepository, IGameRepository gameRepository, ILogger<IndexModel> logger)
     {
         _configRepository = configRepository;
         _gameRepository = gameRepository;
+        _logger = logger;
     }
     
     [BindProperty(SupportsGet = true)] 
@@ -36,6 +38,11 @@ public class PlayGame : PageModel
     public EGamePiece NextMoveBy { get; set; } = default!;
     
     public TicTacTwoBrain TicTacTwoBrain { get; set; } = default!;
+    
+    [BindProperty]
+    public int? SelectedPieceX { get; set; }
+    [BindProperty]
+    public int? SelectedPieceY { get; set; }
     
     public void OnGet(int? x, int? y)
     {
