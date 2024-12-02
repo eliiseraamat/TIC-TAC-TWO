@@ -374,4 +374,333 @@ public class TicTacTwoBrain
         }
         return EGamePiece.Empty;
     }
+
+    public List<int> AINewPiece(EGamePiece piece)
+    {
+        var horizontally = CheckAIHorizontally(piece);
+        if (horizontally.Count > 0)
+        {
+            return horizontally;
+        }
+        var vertically = CheckAIVertically(piece);
+        if (vertically.Count > 0)
+        {
+            return vertically;
+        }
+        var diagonally1 = CheckAIDiagonally1(piece);
+        if (diagonally1.Count > 0)
+        {
+            return diagonally1;
+        }
+        var diagonally2 = CheckAIDiagonally2(piece);
+        if (diagonally2.Count > 0)
+        {
+            return diagonally2;
+        }
+        var opponentPiece = piece == EGamePiece.X ? EGamePiece.O : EGamePiece.X;
+        var opponentHorizontally = CheckAIHorizontally(opponentPiece);
+        if (opponentHorizontally.Count > 0)
+        {
+            return opponentHorizontally;
+        }
+        var opponentVertically = CheckAIVertically(opponentPiece);
+        if (opponentVertically.Count > 0)
+        {
+            return opponentVertically;
+        }
+        var opponentDiagonally1 = CheckAIDiagonally1(opponentPiece);
+        if (opponentDiagonally1.Count > 0)
+        {
+            return opponentDiagonally1;
+        }
+        var opponentDiagonally2 = CheckAIDiagonally2(opponentPiece);
+        if (opponentDiagonally2.Count > 0)
+        {
+            return opponentDiagonally2;
+        }
+
+        if (!IsGridFull())
+        {
+            return  RandomAIMove(piece);
+        }
+
+        return [];
+    }
+    
+    private List<int> CheckAIHorizontally(EGamePiece piece)
+    {
+        for (var y = GridCoordinates[1]; y < GridCoordinates[1] + GridSize; y++)
+        {
+            var count = 0;
+            var coordinates = new List<int>();
+            var pieceCount = 0;
+            for (var x = GridCoordinates[0]; x < GridCoordinates[0] + GridSize; x++)
+            {
+                if (_gameState.GameBoard[x][y] == piece)
+                {
+                    pieceCount++;
+                }  else if (_gameState.GameBoard[x][y] != piece && coordinates.Count > 0 && pieceCount == 0)
+                {
+                    coordinates.RemoveRange(0, coordinates.Count);
+                    coordinates.Add(x);
+                    coordinates.Add(y);
+                } else if (_gameState.GameBoard[x][y] == EGamePiece.Empty && coordinates.Count == 0)
+                {
+                    coordinates.Add(x);
+                    coordinates.Add(y);
+                }
+
+                if (pieceCount == _gameState.GameConfiguration.WinCondition - 1 && coordinates.Count != 0)
+                {
+                    return coordinates;
+                }
+                count++;
+
+                if (count - pieceCount > 1)
+                {
+                    pieceCount = 0;
+                }
+            }
+        }
+        return [];
+    }
+    
+    private List<int> CheckAIVertically(EGamePiece piece)
+    {
+        for (var x = GridCoordinates[0]; x < GridCoordinates[0] + GridSize; x++)
+        {
+            var count = 0;
+            var coordinates = new List<int>();
+            var pieceCount = 0;
+            for (var y = GridCoordinates[0]; y < GridCoordinates[0] + GridSize; y++)
+            {
+                if (_gameState.GameBoard[x][y] == piece)
+                {
+                    pieceCount++;
+                }  else if (_gameState.GameBoard[x][y] != piece && coordinates.Count > 0 && pieceCount == 0)
+                {
+                    coordinates.RemoveRange(0, coordinates.Count);
+                    coordinates.Add(x);
+                    coordinates.Add(y);
+                } else if (_gameState.GameBoard[x][y] == EGamePiece.Empty && coordinates.Count == 0)
+                {
+                    coordinates.Add(x);
+                    coordinates.Add(y);
+                }
+
+                if (pieceCount == _gameState.GameConfiguration.WinCondition - 1 && coordinates.Count != 0)
+                {
+                    return coordinates;
+                }
+                count++;
+                
+                if (count - pieceCount > 1)
+                {
+                    pieceCount = 0;
+                }
+            }
+        }
+        return [];
+    }
+
+    private List<int> RandomAIMove(EGamePiece piece)
+    {
+        do
+        {
+            var limitX = GridCoordinates[0] + GridSize;
+            var limitY = GridCoordinates[1] + GridSize;
+            Random r = new Random();
+            var randomX = r.Next(GridCoordinates[0], limitX);
+            var randomY = r.Next(GridCoordinates[1], limitY);
+            if (GameBoard[randomX][randomY] == EGamePiece.Empty)
+            {
+                return [randomX, randomY];
+            }
+        } while (true);
+    }
+    
+    private List<int> CheckAIDiagonally1(EGamePiece piece)
+    {
+        for (var x = GridCoordinates[0]; x < GridCoordinates[0] + GridSize; x++)
+        {
+            var count = 0;
+            var coordinates = new List<int>();
+            var pieceCount = 0;
+            var y = GridCoordinates[1];
+            for (var x2 = x; x2 > GridCoordinates[0] - 1; x2--)
+            {
+                if (_gameState.GameBoard[x2][y] == piece)
+                {
+                    pieceCount++;
+                }  else if (_gameState.GameBoard[x2][y] != piece && coordinates.Count > 0 && pieceCount == 0)
+                {
+                    coordinates.RemoveRange(0, coordinates.Count);
+                    coordinates.Add(x2);
+                    coordinates.Add(y);
+                } else if (_gameState.GameBoard[x2][y] == EGamePiece.Empty && coordinates.Count == 0)
+                {
+                    coordinates.Add(x2);
+                    coordinates.Add(y);
+                }
+
+                if (pieceCount == _gameState.GameConfiguration.WinCondition - 1 && coordinates.Count != 0)
+                {
+                    return coordinates;
+                }
+                count++;
+                y++;
+                
+                if (count - pieceCount > 1)
+                {
+                    pieceCount = 0;
+                }
+            }
+        }
+
+        if (_gameState.GameConfiguration.WinCondition < GridSize)
+        {
+            for (var x = GridCoordinates[0] + 1; x < GridCoordinates[0] + GridSize - 1; x++)
+            {
+                var count = 0;
+                var coordinates = new List<int>();
+                var pieceCount = 0;
+                var y = GridCoordinates[1] + GridSize - 1;
+                for (var i = 0; y - i <= 0; i++)
+                {
+                    if (_gameState.GameBoard[x + i][y - i] == piece)
+                    {
+                        pieceCount++;
+                    }  else if (_gameState.GameBoard[x + i][y - i] != piece && coordinates.Count > 0 && pieceCount == 0)
+                    {
+                        coordinates.RemoveRange(0, coordinates.Count);
+                        coordinates.Add(x + i);
+                        coordinates.Add(y - i);
+                    } else if (_gameState.GameBoard[x + i][y - i] == EGamePiece.Empty && coordinates.Count == 0)
+                    {
+                        coordinates.Add(x + i);
+                        coordinates.Add(y - i);
+                    }
+
+                    if (pieceCount == _gameState.GameConfiguration.WinCondition - 1 && coordinates.Count != 0)
+                    {
+                        return coordinates;
+                    }
+                    count++;
+                    
+                    if (count - pieceCount > 1)
+                    {
+                        pieceCount = 0;
+                    }
+                }
+            }
+        }
+
+        return [];
+    }
+    
+    private List<int> CheckAIDiagonally2(EGamePiece piece)
+    {
+        for (var x = GridCoordinates[0] + GridSize - 1; x >= GridCoordinates[0]; x--)
+        {
+            var count = 0;
+            var coordinates = new List<int>();
+            var pieceCount = 0;
+            var y = GridCoordinates[1];
+            for (var x2 = x; x2 < GridCoordinates[0] + GridSize; x2++)
+            {
+                if (_gameState.GameBoard[x2][y] == piece)
+                {
+                    pieceCount++;
+                }  else if (_gameState.GameBoard[x2][y] != piece && coordinates.Count > 0 && pieceCount == 0)
+                {
+                    coordinates.RemoveRange(0, coordinates.Count);
+                    coordinates.Add(x2);
+                    coordinates.Add(y);
+                } else if (_gameState.GameBoard[x2][y] == EGamePiece.Empty && coordinates.Count == 0)
+                {
+                    coordinates.Add(x2);
+                    coordinates.Add(y);
+                }
+
+                if (pieceCount == _gameState.GameConfiguration.WinCondition - 1 && coordinates.Count != 0)
+                {
+                    return coordinates;
+                }
+                count++;
+                y++;
+                
+                if (count - pieceCount > 1)
+                {
+                    pieceCount = 0;
+                }
+            }
+        }
+        if (_gameState.GameConfiguration.WinCondition < GridSize)
+        {
+            for (var x = GridCoordinates[0] + GridSize - 2; x >= GridCoordinates[0]; x--)
+            {
+                var count = 0;
+                var coordinates = new List<int>();
+                var pieceCount = 0;
+                var y = GridCoordinates[1] + GridSize - 1;
+                for (var i = 0; y - i <= 0; i++)
+                {
+                    if (_gameState.GameBoard[x + i][y - i] == piece)
+                    {
+                        pieceCount++;
+                    }  else if (_gameState.GameBoard[x + i][y - i] != piece && coordinates.Count > 0 && pieceCount == 0)
+                    {
+                        coordinates.RemoveRange(0, coordinates.Count);
+                        coordinates.Add(x + i);
+                        coordinates.Add(y - i);
+                    } else if (_gameState.GameBoard[x + i][y - i] == EGamePiece.Empty && coordinates.Count == 0)
+                    {
+                        coordinates.Add(x + i);
+                        coordinates.Add(y - i);
+                    }
+
+                    if (pieceCount == _gameState.GameConfiguration.WinCondition - 1 && coordinates.Count != 0)
+                    {
+                        return coordinates;
+                    }
+                    count++;
+                    
+                    if (count - pieceCount > 1)
+                    {
+                        pieceCount = 0;
+                    }
+                }
+            }
+        }
+        return [];
+    }
+
+    public List<int> AIMoveGrid()
+    {
+        if (GridCoordinates[0] > 0)
+        {
+            return [GridCoordinates[0] - 1, GridCoordinates[1]];
+        }
+
+        if (GridCoordinates[1] > 0)
+        {
+            return [GridCoordinates[0], GridCoordinates[1] - 1];
+        }
+
+        if (GridCoordinates[0] + GridSize - 1 < DimX)
+        {
+            return [GridCoordinates[0] + 1, GridCoordinates[1]];
+        }
+        if (GridCoordinates[1] + GridSize - 1 < DimY)
+        {
+            return [GridCoordinates[0], GridCoordinates[1] + 1];
+        }
+
+        return [];
+    }
+    
+    public List<int> AIMovePiece(EGamePiece piece)
+    {
+        return [];
+    }
 }

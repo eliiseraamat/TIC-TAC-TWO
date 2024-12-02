@@ -24,7 +24,30 @@ public static class Menus
                 MenuItemAction = OptionsController.SetStartingPiece
             }
         ]);
-
+    
+    public static readonly Menu GameMenu = new Menu(
+        EMenuLevel.Secondary,
+        "TIC-TAC-TWO Game type", [
+            new MenuItem()
+            {
+                Shortcut = "T",
+                Title = "Two players gameplay",
+                MenuItemAction = () => GameController.MainLoop(_configRepository, _gameRepository)
+            },
+            new MenuItem()
+            {
+                Shortcut = "P",
+                Title = "Player vs AI gameplay",
+                MenuItemAction = () => GameControllerAi.MainLoop(_configRepository, _gameRepository)
+            },
+            new MenuItem()
+            {
+                Shortcut = "A",
+                Title = "AI vs AI gameplay",
+                MenuItemAction = OptionsController.SetStartingPiece
+            }
+        ]);
+    
     public static readonly Menu MainMenu = new Menu(
         EMenuLevel.Main, 
         "TIC-TAC-TWO", [
@@ -39,7 +62,7 @@ public static class Menus
             {
                 Shortcut = "N",
                 Title = "New game",
-                MenuItemAction = () => GameController.MainLoop(_configRepository, _gameRepository)
+                MenuItemAction = GameMenu.Run
             },
             new MenuItem()
             {

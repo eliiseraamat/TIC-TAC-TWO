@@ -106,7 +106,7 @@ public static class GameController
         return null;
     }
 
-    private static string Display(TicTacTwoBrain gameInstance, string name, int playerPieces)
+    public static string Display(TicTacTwoBrain gameInstance, string name, int playerPieces)
     {
         Console.WriteLine($"{name}'s turn");
         
@@ -147,7 +147,7 @@ public static class GameController
         return userChoice;
     }
 
-    private static string EndGame(EGamePiece? player, TicTacTwoBrain gameInstance)
+    public static string EndGame(EGamePiece? player, TicTacTwoBrain gameInstance)
     {
         Console.Clear();
             
@@ -182,7 +182,7 @@ public static class GameController
         } while (true);
     }
 
-    private static string ChooseConfiguration()
+    public static string ChooseConfiguration()
     {
         var configMenuItems = new List<MenuItem>();
 
@@ -352,7 +352,7 @@ public static class GameController
         } while (true);
     }
 
-    private static string MakeMove(TicTacTwoBrain gameInstance, string userChoice, int playerPieces)
+    public static string MakeMove(TicTacTwoBrain gameInstance, string userChoice, int playerPieces)
     {
         var madeMove = false;
         do
