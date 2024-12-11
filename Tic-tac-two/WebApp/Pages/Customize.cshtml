@@ -1,47 +1,119 @@
 ﻿@page
 @model WebApp.Pages.Customize
 
-<div class="form-container">
+<div class="text-center">
+    <h1 class="display-4">TIC-TAC-TWO</h1>
+</div>
+
+@*@if (!string.IsNullOrWhiteSpace(Model.Error))
+{
+    <div class="alert alert-danger" role="alert">
+        @Model.Error
+    </div>
+}*@
+
+<div class="container text-center">
+    @if (!string.IsNullOrWhiteSpace(Model.Error))
+    {
+        <div class="row">
+            <div class="col-2"></div>
+            <div class="col-7 text-start alert alert-danger" role="alert">
+                @Model.Error
+            </div>
+        </div>
+    }
     <form method="post">
-        <div class="form-group">
-            Choose following options: 
+        <div class="row">
+            <div class="col-2"></div>
+            <div class="col-10 text-start">
+                <h4>Choose following options:</h4>
+            </div>
         </div>
-        <div class="form-group">
-            <label asp-for="BoardSize" class="control-label">Board size: </label>
-            <input asp-for="BoardSize"/>
+        <div class="row">
+            <div class="col-2"></div>
+            <div class="col-5 text-start">
+                <label asp-for="BoardSize" class="control-label">Choose game board size: </label>
+            </div>
+            <div class="col-5 text-start">
+                <input asp-for="BoardSize" value="@Model.BoardSize"/>
+            </div>
         </div>
-
-        <div class="form-group">
-            <label asp-for="GridSize" class="control-label">Grid size: </label>
-            <input asp-for="GridSize"/>
+        <div class="row">
+            <div class="col-2"></div>
+            <div class="col-5 text-start">
+                <label asp-for="GridSize" class="control-label">Choose grid size: </label>
+            </div>
+            <div class="col-5 text-start">
+                <input asp-for="GridSize" value="@Model.GridSize"/>
+            </div>
         </div>
-
-        <div class="form-group">
-            <label asp-for="PieceNr" class="control-label">Number of pieces for each player: </label>
-            <input asp-for="PieceNr"/>
+        <div class="row">
+            <div class="col-2"></div>
+            <div class="col-5 text-start">
+                <label asp-for="GridX" class="control-label">Choose grid coordinate x: </label>
+            </div>
+            <div class="col-5 text-start">
+                <input asp-for="GridX " value="@Model.GridX"/>
+            </div>
         </div>
-
-        <div class="form-group">
-            <label asp-for="WinCondition" class="control-label">Choose numbers in line to win: </label>
-            <input asp-for="WinCondition"/>
+        <div class="row">
+            <div class="col-2"></div>
+            <div class="col-5 text-start">
+                <label asp-for="GridY" class="control-label">Choose grid coordinate y: </label>
+            </div>
+            <div class="col-5 text-start">
+                <input asp-for="GridY" value="@Model.GridY"/>
+            </div>
         </div>
-
-        <div class="form-group">
-            <label asp-for="MovePieceAfterMoves" class="control-label">Choose number of moves for one player after which the player have more options: </label>
-            <input asp-for="MovePieceAfterMoves"/>
+        <div class="row">
+            <div class="col-2"></div>
+            <div class="col-5 text-start">
+                <label asp-for="PieceNr" class="control-label">Choose number of pieces for each player: </label>
+            </div>
+            <div class="col-5 text-start">
+                <input asp-for="PieceNr" value="@Model.PieceNr"/>
+            </div>
         </div>
-
-        <div class="form-group">
-            <label asp-for="x" class="control-label">X: </label>
-            <input asp-for="x"/>
+        <div class="row">
+            <div class="col-2"></div>
+            <div class="col-5 text-start">
+                <label asp-for="WinCondition" class="control-label">Choose numbers in line to win: </label>
+            </div>
+            <div class="col-5 text-start">
+                <input asp-for="WinCondition" value="@Model.WinCondition"/>
+            </div>
         </div>
-
-        <div class="form-group">
-            <label asp-for="o" class="control-label">O: </label>
-            <input asp-for="o"/>
+        <div class="row">
+            <div class="col-2"></div>
+            <div class="col-5 text-start">
+                <label asp-for="MovePieceAfterMoves" class="control-label">Choose number of moves for one player after which the player have more options: </label>
+            </div>
+            <div class="col-5 text-start">
+                <input asp-for="MovePieceAfterMoves" value="@Model.MovePieceAfterMoves"/>
+            </div>
         </div>
-        <div class="form-group">
-            <button type="submit">Start</button>
+        <div class="row">
+            <div class="col-2"></div>
+            <div class="col-5 text-start">
+                <label asp-for="x" class="control-label">Choose name for player X: </label>
+            </div>
+            <div class="col-5 text-start">
+                <input asp-for="x" value="@Model.x"/>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-2"></div>
+            <div class="col-5 text-start">
+                <label asp-for="o" class="control-label">Choose name for player O: </label>
+            </div>
+            <div class="col-5 text-start">
+                <input asp-for="o" value="@Model.o"/>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col text-center">
+                <button type="submit" class="btn btn-secondary small">Create</button>
+            </div>
         </div>
     </form>
 </div>

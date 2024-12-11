@@ -9,7 +9,7 @@ public static class OptionsController
         Console.Clear();
 
         var minValue = 3;
-        var maxValue = 50;
+        var maxValue = 40;
 
         Console.WriteLine($"Choose board size ({minValue} - {maxValue}): ");
         

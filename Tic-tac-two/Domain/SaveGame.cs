@@ -12,6 +12,12 @@ public class SaveGame
     [MaxLength(10240)]
     public string Game { get; set; } = default!;
     
+    [MaxLength(128)]
+    public string PasswordX { get; set; } = default!;
+    
+    [MaxLength(128)]
+    public string PasswordO { get; set; } = default!;
+    
     public int ConfigurationId { get; set; }
     public Configuration? Configuration { get; set; }
 }

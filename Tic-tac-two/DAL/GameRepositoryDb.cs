@@ -15,7 +15,7 @@ public class GameRepositoryDb : IGameRepository
         _ctx = context;
     }
     
-    public string SaveGame(string jsonStateString, string gameConfigName)
+    public string SaveGame(GameState state, string gameConfigName, EGamePiece piece)
     {
         var configuration = _ctx.Configurations.FirstOrDefault(c => c.Name == gameConfigName);
         
@@ -24,10 +24,32 @@ public class GameRepositoryDb : IGameRepository
             throw new Exception($"Configuration with name '{gameConfigName}' not found.");
         }
         
+        var random = new Random();
+        var max = (int)Math.Pow(10, 6) - 1;
+        string passwordX;
+        string passwordO;
+        if (piece == EGamePiece.Empty)
+        {
+            passwordX = random.Next(0, max + 1).ToString($"D{6}");
+            passwordO = random.Next(0, max + 1).ToString($"D{6}");
+        }
+        else if (piece == EGamePiece.X)
+        {
+            passwordX = random.Next(0, max + 1).ToString($"D{6}");
+            passwordO = "-";
+        }
+        else
+        {
+            passwordX = "-";
+            passwordO = random.Next(0, max + 1).ToString($"D{6}");
+        }
+        
         var gameState = new SaveGame()
         { 
             Name = gameConfigName + " " + DateTime.Now.ToString("yy-MM-dd_HH-mm-ss"), 
-            Game = jsonStateString,
+            Game = state.ToString(),
+            PasswordX = passwordX,
+            PasswordO = passwordO,
             ConfigurationId = configuration.Id,
             Configuration = configuration
         };
@@ -86,5 +108,15 @@ public class GameRepositoryDb : IGameRepository
         _ctx.SaveChanges();
         
         return gameName;
+    }
+
+    public List<string> GetPasswords(string gameName)
+    {
+        var gameState = _ctx.GameStates.FirstOrDefault(g => g.Name == gameName);
+        if (gameState == null)
+        {
+            throw new Exception($"Game with name '{gameName}' not found.");
+        }
+        return [gameState.PasswordX, gameState.PasswordO];
     }
 }

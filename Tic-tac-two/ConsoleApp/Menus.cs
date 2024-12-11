@@ -44,7 +44,7 @@ public static class Menus
             {
                 Shortcut = "A",
                 Title = "AI vs AI gameplay",
-                MenuItemAction = OptionsController.SetStartingPiece
+                MenuItemAction = () => GameControllerAi.AILoop(_configRepository, _gameRepository)
             }
         ]);
     

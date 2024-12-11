@@ -121,7 +121,7 @@ public static class GameController
         return userChoice;
     }
 
-    private static string DisplayChoices(TicTacTwoBrain gameInstance, int playerPieces)
+    public static string DisplayChoices(TicTacTwoBrain gameInstance, int playerPieces)
     {
         Console.WriteLine();
         
@@ -223,8 +223,9 @@ public static class GameController
                     MenuItemAction = () => 0.ToString()
                 });
             }
-
-            if (gameInstance.EnoughMovesForMoreOptions() && !gameInstance.IsGridFull())
+            
+            var piece = gameInstance.NextMoveBy == EGamePiece.X ? EGamePiece.X : EGamePiece.O;
+            if (gameInstance.EnoughMovesForMoreOptions() && !gameInstance.IsGridFull() && gameInstance.CheckPieceInBoard(piece))
             {
                 choices.Add(new MenuItem()
                 {
@@ -278,17 +279,17 @@ public static class GameController
         } while (true);
     }
 
-    private static List<int> GetCoordinates(string userChoice, TicTacTwoBrain gameInstance)
+    public static List<int> GetCoordinates(string userChoice, TicTacTwoBrain gameInstance)
     {
         do
         {
             var input = Console.ReadLine()!;
-            if (userChoice == "" && input.ToUpper().Equals("S", StringComparison.CurrentCultureIgnoreCase))
+            /*if (userChoice == "" && input.ToUpper().Equals("S", StringComparison.CurrentCultureIgnoreCase))
             {
                 _gameRepository.SaveGame(gameInstance.GetGameStateJson(), gameInstance.GetGameConfigName());
                 Console.WriteLine("Saved game, give coordinates");
                 continue;
-            }
+            }*/
             if (userChoice == "P")
             {
                 try
@@ -359,8 +360,9 @@ public static class GameController
         {
             if (userChoice == "S")
             {
-                _gameRepository.SaveGame(gameInstance.GetGameStateJson(), gameInstance.GetGameConfigName());
-                Console.WriteLine("Saved game");
+                var name = _gameRepository.SaveGame(gameInstance.GameState, gameInstance.GetGameConfigName(), EGamePiece.Empty);
+                var passwords = _gameRepository.GetPasswords(name);
+                Console.WriteLine($"Saved game. Game name: {name}, X password: {passwords[0]}, O password: {passwords[1]}");
                 userChoice = DisplayChoices(gameInstance, playerPieces);
             }
             if (userChoice == "Q")
@@ -368,7 +370,6 @@ public static class GameController
                 return "q";
             }
             var coordinates = GetCoordinates(userChoice, gameInstance);
-            //userChoice == "" || 
             if (userChoice == "N" && gameInstance.MakeAMove(coordinates[0], coordinates[1]))
             {
                 madeMove = true;
@@ -432,6 +433,107 @@ public static class GameController
         
         var gameInstance= new TicTacTwoBrain(chosenGame);
 
-        return GameLoop(gameInstance);
+        string result;
+
+        if (gameInstance.GameType == EGameType.TwoPlayer)
+        {
+            result = ValidatePasswords(gameInstance, chosenGameName);
+        }
+        else
+        {
+            result = ValidatePasswordsAI(gameInstance, chosenGameName);
+        }
+
+        if (result == "E")
+        {
+            return "r"; //return "e"
+        }
+
+        if (gameInstance.GameType == EGameType.TwoPlayer)
+        {
+            return GameLoop(gameInstance);
+        }
+
+        if (gameInstance.GameType == EGameType.OnePlayer)
+        {
+            return GameControllerAi.GameLoop(gameInstance, EGamePiece.Empty);
+        }
+        
+        return GameControllerAi.AIGameLoop(gameInstance);
+    }
+
+    private static string ValidatePasswords(TicTacTwoBrain gameInstance, string gameName)
+    {
+        var passwords = _gameRepository.GetPasswords(gameName);
+        do
+        {
+            Console.WriteLine("Give X password or exit (E): ");
+            var inputX = Console.ReadLine()!;
+            if (inputX == passwords[0])
+            {
+                do
+                {
+                    Console.WriteLine("Give O password or exit (E): ");
+                    var inputO = Console.ReadLine()!;
+                    if (inputO == passwords[1])
+                    {
+                        return "";
+                    }
+
+                    if (inputO.ToUpper() == "E")
+                    {
+                        return "E";
+                    }
+                    Console.WriteLine("Wrong password");
+                } while (true);
+            }
+
+            if (inputX.ToUpper() == "E")
+            {
+                return "E";
+            }
+            Console.WriteLine("Wrong password");
+        } while (true);
+    }
+    
+    private static string ValidatePasswordsAI(TicTacTwoBrain gameInstance, string gameName)
+    {
+        var passwords = _gameRepository.GetPasswords(gameName);
+        do
+        {
+            if (gameInstance.GameType == EGameType.OnePlayer && passwords[0] != "-")
+            {
+                Console.WriteLine("Give X password or exit (E): ");
+            } else if (gameInstance.GameType == EGameType.OnePlayer && passwords[1] != "-")
+            {
+                Console.WriteLine("Give O password or exit (E): ");
+            }
+            else
+            {
+                Console.WriteLine("Give observer password or exit (E): ");
+            }
+            var input = Console.ReadLine()!;
+
+            if (gameInstance.GameType == EGameType.OnePlayer && passwords[1] != "-")
+            {
+                if (input == passwords[1])
+                {
+                    return "";
+                }
+            }
+            else
+            {
+                if (input == passwords[0])
+                {
+                    return "";
+                }
+            }
+
+            if (input.ToUpper() == "E")
+            {
+                return "E";
+            }
+            Console.WriteLine("Wrong password");
+        } while (true);
     }
 }

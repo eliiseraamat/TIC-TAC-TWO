@@ -18,6 +18,8 @@ public class GameState
     public string PlayerO { get; set; } = "O";
     
     public EGamePiece StartingPiece { get; set; }
+    
+    public EGameType GameType { get; set; }
 
     public GameState() 
     {
@@ -30,7 +32,8 @@ public class GameState
         GameConfiguration = default!;
     }
 
-    public GameState(GameConfiguration gameConfiguration, EGamePiece[][] gameBoard, int playerXPieces, int playerOPieces, List<int> gridCoordinates, string playerX, string playerO, EGamePiece startingPiece)
+    public GameState(GameConfiguration gameConfiguration, EGamePiece[][] gameBoard, int playerXPieces, int playerOPieces, 
+        List<int> gridCoordinates, string playerX, string playerO, EGamePiece startingPiece, EGameType gameType)
     {
         GameConfiguration = gameConfiguration;
         GameBoard = gameBoard;
@@ -40,6 +43,7 @@ public class GameState
         PlayerX = playerX;
         PlayerO = playerO;
         NextMoveBy = startingPiece;
+        GameType = gameType;
     }
 
     public override string ToString()

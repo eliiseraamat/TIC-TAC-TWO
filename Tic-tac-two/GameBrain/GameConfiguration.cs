@@ -21,6 +21,8 @@ public record GameConfiguration()
     public string PlayerX { get; set; } = "X";
     
     public string PlayerO { get; set; } = "O";
+
+    public EGameType GameType { get; set; } = EGameType.TwoPlayer;
     
     public override string ToString() => $"Board {BoardSize}x{BoardSize}, grid {GridSize}x{GridSize}, to win: {WinCondition}, can move piece after {MovePieceAfterMoves} moves";
 }

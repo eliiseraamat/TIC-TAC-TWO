@@ -82,3 +82,54 @@ input {
   border-radius: 5px;
   box-sizing: border-box; /* Arvutab paddingut õigesti */
 }
+
+/*.empty-cell {
+  font-family: monospace; 
+  width: 50px;
+  height: 50px;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 50px;
+  border: 1px solid black;
+  text-decoration: none;
+}*/
+
+table {
+  border-spacing: 5px;
+  border-collapse: separate;
+}
+
+td {
+  padding: 0;
+}
+
+.cell {
+  display: flex; /* Tsentreerib sisu horisontaalselt ja vertikaalselt */
+  align-items: center; /* Vertikaalne tsentreerimine */
+  justify-content: center; /* Horisontaalne tsentreerimine */
+  width: 50px; /* Ruutude laius */
+  height: 50px; /* Ruutude kõrgus */
+  border: 1px solid black; /* Kastide piirid */
+  font-family: monospace; /* Monospaced font tagab ühtluse */
+  font-size: 20px; /* Teksti suurus */
+}
+
+.empty-cell {
+  background-color: #f0f0f0; /* Tühjade kastide värv */
+  text-decoration: none; /* Eemaldab lingi allajoonimise */
+}
+
+.filled-cell {
+  background-color: #d0d0d0; /* Täidetud kastide värv */
+}
+
+/*.board td.grid-cell {
+  background-color: lightblue !important;
+  color: #0a53be;
+}
+
+.board td.grid-cell button {
+  background-color: lightblue !important;
+  color: #0a53be;
+}*/
+
