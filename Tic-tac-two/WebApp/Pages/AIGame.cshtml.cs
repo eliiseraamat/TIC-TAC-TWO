@@ -28,10 +28,10 @@ public class AIGame : PageModel
     
     public TicTacTwoBrain TicTacTwoBrain { get; set; } = default!;
 
-    [BindProperty(SupportsGet = true)] 
+    [BindProperty] 
     public int SelectedX { get; set; } = -1;
 
-    [BindProperty(SupportsGet = true)] 
+    [BindProperty] 
     public int SelectedO { get; set; } = -1;
 
     [BindProperty(SupportsGet = true)] 
@@ -68,6 +68,11 @@ public class AIGame : PageModel
             Error = TempData["Error"] as string ?? "";
         }
         
+        if (TempData.ContainsKey("AImove"))
+        {
+            AImove = (bool)(TempData["AImove"] ?? false);
+        }
+
         if (AImove)
         {
             var pieceAI = Piece == EGamePiece.X ? EGamePiece.O : EGamePiece.X;
@@ -86,7 +91,6 @@ public class AIGame : PageModel
                 if (winCon != EGamePiece.Empty)
                 {
                     Winner = winCon;
-                    //return RedirectToPage(new { GameName = GameName, Piece = Piece, PasswordX = PasswordX, PasswordO = PasswordO, Winner = Winner });
                 }
             }
             AImove = false;
@@ -148,8 +152,6 @@ public class AIGame : PageModel
 
         if (TicTacTwoBrain.NextMoveBy != Piece)
         {
-            /*Error = "Not your turn";
-            return Page();*/
             TempData["Error"] = "Not your turn";
             return RedirectToPage(new { GameName = GameName, Piece = Piece, PasswordX = PasswordX, PasswordO = PasswordO });
         }
@@ -281,7 +283,8 @@ public class AIGame : PageModel
                 return RedirectToPage(new { GameName = GameName, Piece = Piece, PasswordX = PasswordX, PasswordO = PasswordO, Winner = Winner });
             }
 
-            return RedirectToPage(new { GameName = GameName, Piece = Piece, AImove = true, PasswordX = PasswordX, PasswordO = PasswordO});
+            TempData["AImove"] = true;
+            return RedirectToPage(new { GameName = GameName, Piece = Piece, PasswordX = PasswordX, PasswordO = PasswordO});
         }
 
         return Page();

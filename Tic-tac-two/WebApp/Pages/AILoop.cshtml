@@ -28,15 +28,6 @@
 </div>
 
 <div class="container text-center">
-    @if (!string.IsNullOrWhiteSpace(Model.Error))
-    {
-        <div class="row">
-            <div class="col-2"></div>
-            <div class="col-7 text-start alert alert-danger" role="alert">
-                @Model.Error
-            </div>
-        </div>
-    }
     <div class="row">
         <div class="col-2"></div>
         <div class="col-7 text-center">
@@ -111,7 +102,7 @@
                         <input type="hidden" name="action" value="reset"/>
                         <input type="hidden" name="GameName" value="@Model.GameName"/>
                         <input type="hidden" name="Piece" value="@Model.Piece"/>
-                        <button class="btn custom">Reset</button>
+                        <button class="btn reset">Reset</button>
                     </form>
                 </div>
             }

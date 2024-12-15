@@ -80,6 +80,8 @@
                                     {
                                         <form method="post">
                                             <input type="hidden" name="action" value="place_piece-@x-@y" />
+                                            <input type="hidden" name="SelectedX" value="@Model.SelectedX"/>
+                                            <input type="hidden" name="SelectedO" value="@Model.SelectedO"/>
                                             <input type="hidden" name="GameName" value="@Model.GameName" />
                                             <input type="hidden" name="Piece" value="@Model.Piece" />
                                             <button type="submit" class="@(isGridCell ? "btn grid" : "btn btn-outline-dark")" @(Model.Winner != null ? "disabled" : "")>&nbsp;&nbsp;&nbsp;</button>
@@ -89,6 +91,8 @@
                                     {
                                         <form method="post">
                                             <input type="hidden" name="action" value="select_piece-@x-@y" />
+                                            <input type="hidden" name="SelectedX" value="@Model.SelectedX"/>
+                                            <input type="hidden" name="SelectedO" value="@Model.SelectedO"/>
                                             <input type="hidden" name="GameName" value="@Model.GameName" />
                                             <input type="hidden" name="Piece" value="@Model.Piece" />
                                             <button type="submit" class="@(isGridCell ? "btn grid" : "btn btn-outline-dark")" @(Model.Winner != null ? "disabled" : "")>@Model.TicTacTwoBrain.GameBoard[x][y]</button>
@@ -203,7 +207,7 @@
                         <input type="hidden" name="action" value="reset" />
                         <input type="hidden" name="GameName" value="@Model.GameName" />
                         <input type="hidden" name="Piece" value="@Model.Piece" />
-                        <button class="btn custom">Reset</button>
+                        <button class="btn reset">Reset</button>
                     </form>
                 </div>
             }
@@ -212,7 +216,7 @@
                     <input type="hidden" name="action" value="exit" />
                     <input type="hidden" name="GameName" value="@Model.GameName" />
                     <input type="hidden" name="Piece" value="@Model.Piece" />
-                    <button class="btn custom">Exit</button>
+                    <button class="btn exit">Exit</button>
                 </form>
             </div>
         </div>

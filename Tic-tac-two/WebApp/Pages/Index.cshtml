@@ -123,16 +123,23 @@
 </div>
 
 <script>
-    function togglePieceOptions() {
-        const gameType = document.querySelector('input[name="GameType"]:checked').value;
+    document.addEventListener('DOMContentLoaded', () => {
+        const gameTypeRadios = document.querySelectorAll('input[name="GameType"]');
         const pieceOptions = document.querySelectorAll(".piece-options");
-
-        pieceOptions.forEach(option => {
-            if (gameType === "TwoPlayer" || gameType === "OnePlayer") {
-                option.style.display = "block";
-            } else {
-                option.style.display = "none";
-            }
-        });
-    }
+        
+        function updatePieceOptionsDisplay() {
+            const selectedGameType = document.querySelector('input[name="GameType"]:checked')?.value;
+            pieceOptions.forEach(option => {
+                if (selectedGameType === "TwoPlayer" || selectedGameType === "OnePlayer") {
+                    option.style.display = "block";
+                } else {
+                    option.style.display = "none";
+                }
+            });
+        }
+        
+        gameTypeRadios.forEach(radio => radio.addEventListener('change', updatePieceOptionsDisplay));
+        
+        updatePieceOptionsDisplay();
+    });
 </script>
