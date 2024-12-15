@@ -49,22 +49,47 @@ public class AIGame : PageModel
         _gameRepository = gameRepository;
     }
     
-    public void OnGet()
+    public IActionResult OnGet()
     {
         var game = _gameRepository.LoadGame(GameName);
 
         TicTacTwoBrain = new TicTacTwoBrain(game);
         
-        /*var win = TicTacTwoBrain.WinningCondition();
+        var win = TicTacTwoBrain.WinningCondition();
         
         if (win != EGamePiece.Empty)
         {
             Winner = win;
-        }*/
+            AImove = false;
+        }
         
         if (TempData.ContainsKey("Error"))
         {
             Error = TempData["Error"] as string ?? "";
+        }
+        
+        if (AImove)
+        {
+            var pieceAI = Piece == EGamePiece.X ? EGamePiece.O : EGamePiece.X;
+            var moveAI = GameControllerAi.AIMove(TicTacTwoBrain, pieceAI);
+            Console.WriteLine(moveAI);
+            if (!moveAI)
+            {
+                Winner = EGamePiece.Empty;
+            }
+            else
+            {
+                //Task.Delay(5000);
+                GameName = _gameRepository.UpdateGame(TicTacTwoBrain.GetGameStateJson(), GameName);
+
+                var winCon = TicTacTwoBrain.WinningCondition();
+                if (winCon != EGamePiece.Empty)
+                {
+                    Winner = winCon;
+                    //return RedirectToPage(new { GameName = GameName, Piece = Piece, PasswordX = PasswordX, PasswordO = PasswordO, Winner = Winner });
+                }
+            }
+            AImove = false;
         }
         
         var amount = Piece == EGamePiece.X ? TicTacTwoBrain.PlayerXPieces : TicTacTwoBrain.PlayerOPieces;
@@ -90,28 +115,7 @@ public class AIGame : PageModel
         {
             Winner = EGamePiece.Empty;
         }
-
-        if (AImove)
-        {
-            var pieceAI = Piece == EGamePiece.X ? EGamePiece.O : EGamePiece.X;
-            var moveAI = GameControllerAi.AIMove(TicTacTwoBrain, pieceAI);
-            Console.WriteLine(moveAI);
-            if (!moveAI)
-            {
-                Winner = EGamePiece.Empty;
-            }
-            else
-            {
-                GameName = _gameRepository.UpdateGame(TicTacTwoBrain.GetGameStateJson(), GameName);
-
-                var winCon = TicTacTwoBrain.WinningCondition();
-                if (winCon != EGamePiece.Empty)
-                {
-                    Winner = winCon;
-                }
-            }
-            AImove = false;
-        }
+        return Page();
     }
 
     public IActionResult OnPost(string action)
@@ -133,6 +137,10 @@ public class AIGame : PageModel
 
         if (parts[0] == "exit")
         {
+            if (Winner != null)
+            {
+                _gameRepository.DeleteGame(GameName);
+            }
             return RedirectToPage("Index");
         }
 
@@ -270,6 +278,7 @@ public class AIGame : PageModel
             if (win != EGamePiece.Empty)
             {
                 Winner = win;
+                return RedirectToPage(new { GameName = GameName, Piece = Piece, PasswordX = PasswordX, PasswordO = PasswordO, Winner = Winner });
             }
 
             return RedirectToPage(new { GameName = GameName, Piece = Piece, AImove = true, PasswordX = PasswordX, PasswordO = PasswordO});

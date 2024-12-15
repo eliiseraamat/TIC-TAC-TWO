@@ -108,6 +108,10 @@ public class PlayGame : PageModel
 
         if (parts[0] == "exit")
         {
+            if (Winner != null)
+            {
+                _gameRepository.DeleteGame(GameName);
+            }
             return RedirectToPage("Index");
         }
 

@@ -3,244 +3,218 @@
 @using Microsoft.AspNetCore.Mvc.TagHelpers
 @model WebApp.Pages.AIGame
 
-@if (!string.IsNullOrWhiteSpace(Model.Error))
-{
-    <div class="alert alert-danger" role="alert">
-        @Model.Error
-    </div>
-}
-
 @{
     var player = Model.TicTacTwoBrain.NextMoveBy == EGamePiece.X ? Model.TicTacTwoBrain.PlayerX : Model.TicTacTwoBrain.PlayerO;
 }
 
-<div class="container text-center">
+<div class="container">
     <div class="row">
-        <div class="col-3"></div>
-        @if (Model.Winner != null)
-        {
-            @if (Model.Winner != EGamePiece.Empty)
-            {
-                <div class="col-5 d-flex align-items-center justify-content-center">Winner is @Model.Winner</div>
-            }
-            else
-            {
-                <div class="col-5 d-flex align-items-center justify-content-center">It it a tie!</div>
-            }
-        }
-        else
-        {
-            <div class="col-5 d-flex align-items-center justify-content-center">Next move by: @player</div>
-        }
-        <div class="col-4"></div>
-    </div>
-    <div class="row">
-        <div class="col-3"></div>
-        <div class="col-5 d-flex align-items-center justify-content-center">
+        <div class="col-2"></div>
+        <div class="col-7 text-center"><h1 class="display-4">TIC-TAC-TWO</h1></div>
+        <div class="col-3 text-center">
+            <button class="btn passwords" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                @Model.GameName
+            </button>
+            <div class="collapse" id="collapseExample">
 
-            <table class="board">
-                @for (var y = 0; y < Model.TicTacTwoBrain.DimY; y++)
-                {
-                    <tr>
-                        @for (var x = 0; x < Model.TicTacTwoBrain.DimX; x++)
-                        {
-                            var isGridCell = y >= Model.TicTacTwoBrain.GridCoordinates[1] &&
-                                             y <= Model.TicTacTwoBrain.GridCoordinates[1] + Model.TicTacTwoBrain.GridSize - 1 &&
-                                             x >= Model.TicTacTwoBrain.GridCoordinates[0] &&
-                                             x <= Model.TicTacTwoBrain.GridCoordinates[0] + Model.TicTacTwoBrain.GridSize - 1;
-                            <td class="@(isGridCell ? "grid-cell" : "")">
-                                @if (Model.TicTacTwoBrain.GameBoard[x][y] == EGamePiece.Empty)
-                                {
-                                    <form method="post">
-                                        <input type="hidden" name="action" value="place_piece-@x-@y"/>
-                                        <input type="hidden" name="SelectedX" value="@Model.SelectedX"/>
-                                        <input type="hidden" name="SelectedO" value="@Model.SelectedO"/>
-                                        <input type="hidden" name="GameName" value="@Model.GameName"/>
-                                        <input type="hidden" name="Piece" value="@Model.Piece"/>
-                                        <button type="submit" class="@(isGridCell ? "btn btn-info btn-sm" : "btn btn-outline-dark btn-sm")">&nbsp;&nbsp;&nbsp;</button>
-                                    </form>
-                                }
-                                else
-                                {
-                                    <form method="post">
-                                        <input type="hidden" name="action" value="select_piece-@x-@y"/>
-                                        <input type="hidden" name="SelectedX" value="@x"/>
-                                        <input type="hidden" name="SelectedO" value="@y"/>
-                                        <input type="hidden" name="GameName" value="@Model.GameName"/>
-                                        <input type="hidden" name="Piece" value="@Model.Piece"/>
-                                        <button type="submit" class="@(isGridCell ? "btn btn-info btn-sm" : "btn btn-outline-dark btn-sm")">@Model.TicTacTwoBrain.GameBoard[x][y]</button>
-                                    </form>
-                                }
-                            </td>
-                        }
-                    </tr>
-                }
-            </table>
-        </div>
-        <div class="col-4 text-start">
-            <div class="container text-center">
-                <div class="row">
-                    <div class="col">
-                        <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-                            @Model.GameName
-                        </button>
-                        <div class="collapse" id="collapseExample">
-
-                            <div class="card card-body">
-                                @if (Model.PasswordX != null)
-                                {
-                                    <div>X password: @Model.PasswordX</div>
-                                }
-                                @if (Model.PasswordO != null)
-                                {
-                                    <div>O password: @Model.PasswordO</div>
-                                }
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                @if (Model.Winner == null && Model.Piece == Model.TicTacTwoBrain.NextMoveBy)
-                {
-                    <div class="row">
-                        <div class="col text-start">
-                            Choose one of the following options:
-                            <ul>
-                                @foreach (var choice in Model.Choices)
-                                {
-                                    <div class="row">
-                                        <div class="col text-start">
-                                            <li>@choice</li>
-                                        </div>
-                                    </div>
-                                }
-                            </ul>
-                        </div>
-                    </div>
-                    @if (Model.TicTacTwoBrain.EnoughMovesForMoreOptions() && Model.TicTacTwoBrain.GridSize < Model.TicTacTwoBrain.DimX)
+                <div class="card card-body">
+                    @if (Model.PasswordX != null)
                     {
-                        <div class="row">
-
-                            <div class="col d-flex align-items-center justify-content-center">
-                                <form method="post">
-                                    <input type="hidden" name="action" value="move_grid-diagonalUpL"/>
-                                    <input type="hidden" name="SelectedX" value="@Model.SelectedX"/>
-                                    <input type="hidden" name="SelectedO" value="@Model.SelectedO"/>
-                                    <input type="hidden" name="GameName" value="@Model.GameName"/>
-                                    <input type="hidden" name="Piece" value="@Model.Piece"/>
-                                    <button>↖</button>
-                                </form>
-                                <form method="post">
-                                    <input type="hidden" name="action" value="move_grid-up"/>
-                                    <input type="hidden" name="SelectedX" value="@Model.SelectedX"/>
-                                    <input type="hidden" name="SelectedO" value="@Model.SelectedO"/>
-                                    <input type="hidden" name="GameName" value="@Model.GameName"/>
-                                    <input type="hidden" name="Piece" value="@Model.Piece"/>
-                                    <button>↑</button>
-                                </form>
-                                <form method="post">
-                                    <input type="hidden" name="action" value="move_grid-diagonalUpR"/>
-                                    <input type="hidden" name="SelectedX" value="@Model.SelectedX"/>
-                                    <input type="hidden" name="SelectedO" value="@Model.SelectedO"/>
-                                    <input type="hidden" name="GameName" value="@Model.GameName"/>
-                                    <input type="hidden" name="Piece" value="@Model.Piece"/>
-                                    <button>↗</button>
-                                </form>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col d-flex align-items-center justify-content-center">
-                                <form method="post">
-                                    <input type="hidden" name="action" value="move_grid-left"/>
-                                    <input type="hidden" name="SelectedX" value="@Model.SelectedX"/>
-                                    <input type="hidden" name="SelectedO" value="@Model.SelectedO"/>
-                                    <input type="hidden" name="GameName" value="@Model.GameName"/>
-                                    <input type="hidden" name="Piece" value="@Model.Piece"/>
-                                    <button>←</button>
-                                </form>
-                                <form method="post">
-                                    <input type="hidden" name="action" value="move_grid-right"/>
-                                    <input type="hidden" name="SelectedX" value="@Model.SelectedX"/>
-                                    <input type="hidden" name="SelectedO" value="@Model.SelectedO"/>
-                                    <input type="hidden" name="GameName" value="@Model.GameName"/>
-                                    <input type="hidden" name="Piece" value="@Model.Piece"/>
-                                    <button>→</button>
-                                </form>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col d-flex align-items-center justify-content-center">
-                                <form method="post">
-                                    <input type="hidden" name="action" value="move_grid-diagonalDownL"/>
-                                    <input type="hidden" name="SelectedX" value="@Model.SelectedX"/>
-                                    <input type="hidden" name="SelectedO" value="@Model.SelectedO"/>
-                                    <input type="hidden" name="GameName" value="@Model.GameName"/>
-                                    <input type="hidden" name="Piece" value="@Model.Piece"/>
-                                    <button>↙</button>
-                                </form>
-                                <form method="post">
-                                    <input type="hidden" name="action" value="move_grid-down"/>
-                                    <input type="hidden" name="SelectedX" value="@Model.SelectedX"/>
-                                    <input type="hidden" name="SelectedO" value="@Model.SelectedO"/>
-                                    <input type="hidden" name="GameName" value="@Model.GameName"/>
-                                    <input type="hidden" name="Piece" value="@Model.Piece"/>
-                                    <button>↓</button>
-                                </form>
-                                <form method="post">
-                                    <input type="hidden" name="action" value="move_grid-diagonalDownR"/>
-                                    <input type="hidden" name="SelectedX" value="@Model.SelectedX"/>
-                                    <input type="hidden" name="SelectedO" value="@Model.SelectedO"/>
-                                    <input type="hidden" name="GameName" value="@Model.GameName"/>
-                                    <input type="hidden" name="Piece" value="@Model.Piece"/>
-                                    <button>↘</button>
-                                </form>
-                            </div>
-                        </div>
+                        <div>X password: @Model.PasswordX</div>
                     }
-                }
-                else if (Model.Piece != Model.TicTacTwoBrain.NextMoveBy && Model.Winner == null)
-                {
-                    <div class="row">
-                        <div class="col text-start">
-                            Not your turn yet!
-                        </div>
-                    </div>
-                }
-                else
-                {
-                    <div class="row">
-                        <div class="col text-start">
-                            <form method="post">
-                                <input type="hidden" name="action" value="reset"/>
-                                <input type="hidden" name="GameName" value="@Model.GameName"/>
-                                <input type="hidden" name="Piece" value="@Model.Piece"/>
-                                <button>Reset</button>
-                            </form>
-                        </div>
-                    </div>
-                }
-                <div class="row">
-                    <div class="col text-start">
-                        <form method="post">
-                            <input type="hidden" name="action" value="exit"/>
-                            <input type="hidden" name="GameName" value="@Model.GameName"/>
-                            <input type="hidden" name="Piece" value="@Model.Piece"/>
-                            <button>Exit</button>
-                        </form>
-                    </div>
+                    @if (Model.PasswordO != null)
+                    {
+                        <div>O password: @Model.PasswordO</div>
+                    }
                 </div>
             </div>
         </div>
     </div>
-    <div class="row">
+</div>
 
-        <div class="col-3"></div>
-        <div class="col-5 d-flex align-items-center justify-content-center">@Model.TicTacTwoBrain.PlayerX: has @Model.TicTacTwoBrain.PlayerXPieces pieces left </div>
-        <div class="col-4"></div>
-    </div>
+<div class="container">
+    @if (!string.IsNullOrWhiteSpace(Model.Error))
+    {
+        <div class="row">
+            <div class="col-2"></div>
+            <div class="col-7 text-start alert alert-danger" role="alert">
+                @Model.Error
+            </div>
+        </div>
+    }
     <div class="row">
+        <div class="col-2"></div>
+        <div class="col-7 text-center">
+            <div>
+                @if (Model.Winner != null)
+                {
+                    @if (Model.Winner != EGamePiece.Empty)
+                    {
+                        var winPlayer = Model.Winner == EGamePiece.X ? Model.TicTacTwoBrain.PlayerX : Model.TicTacTwoBrain.PlayerO;
+                        <div>Winner is @winPlayer</div>
+                    }
+                    else
+                    {
+                        <div>It is a tie!</div>
+                    }
+                }
+                else
+                {
+                    <div>Next move by: @player</div>
+                }
+            </div>
+            <div class="my-4 d-flex align-items-center justify-content-center">
+                <table class="board">
+                    @for (var y = 0; y < Model.TicTacTwoBrain.DimY; y++)
+                    {
+                        <tr>
+                            @for (var x = 0; x < Model.TicTacTwoBrain.DimX; x++)
+                            {
+                                var isGridCell = y >= Model.TicTacTwoBrain.GridCoordinates[1] &&
+                                                 y <= Model.TicTacTwoBrain.GridCoordinates[1] + Model.TicTacTwoBrain.GridSize - 1 &&
+                                                 x >= Model.TicTacTwoBrain.GridCoordinates[0] &&
+                                                 x <= Model.TicTacTwoBrain.GridCoordinates[0] + Model.TicTacTwoBrain.GridSize - 1;
 
-        <div class="col-3"></div>
-        <div class="col-5 d-flex align-items-center justify-content-center">@Model.TicTacTwoBrain.PlayerO: has @Model.TicTacTwoBrain.PlayerOPieces pieces left </div>
-        <div class="col-4"></div>
+                                <td class="@(isGridCell ? "grid-cell" : "")">
+                                    @if (Model.TicTacTwoBrain.GameBoard[x][y] == EGamePiece.Empty)
+                                    {
+                                        <form method="post">
+                                            <input type="hidden" name="action" value="place_piece-@x-@y" />
+                                            <input type="hidden" name="GameName" value="@Model.GameName" />
+                                            <input type="hidden" name="Piece" value="@Model.Piece" />
+                                            <button type="submit" class="@(isGridCell ? "btn grid" : "btn btn-outline-dark")" @(Model.Winner != null ? "disabled" : "")>&nbsp;&nbsp;&nbsp;</button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <form method="post">
+                                            <input type="hidden" name="action" value="select_piece-@x-@y" />
+                                            <input type="hidden" name="GameName" value="@Model.GameName" />
+                                            <input type="hidden" name="Piece" value="@Model.Piece" />
+                                            <button type="submit" class="@(isGridCell ? "btn grid" : "btn btn-outline-dark")" @(Model.Winner != null ? "disabled" : "")>@Model.TicTacTwoBrain.GameBoard[x][y]</button>
+                                        </form>
+                                    }
+                                </td>
+                            }
+                        </tr>
+                    }
+                </table>
+            </div>
+            <div class="my-1">
+                @Model.TicTacTwoBrain.PlayerX: has @Model.TicTacTwoBrain.PlayerXPieces pieces left
+            </div>
+            <div class="my-1">
+                @Model.TicTacTwoBrain.PlayerO: has @Model.TicTacTwoBrain.PlayerOPieces pieces left
+            </div>
+        </div>
+        
+        <div class="col-3 text-start">
+            @if (Model.Winner == null && Model.Piece == Model.TicTacTwoBrain.NextMoveBy)
+            {
+                <div class="my-2">
+                    Choose one of the following options:
+                    <ul>
+                        @foreach (var choice in Model.Choices)
+                        {
+                            <li class="my-1">@choice</li>
+                        }
+                    </ul>
+                </div>
+
+                @if (Model.TicTacTwoBrain.EnoughMovesForMoreOptions() && Model.TicTacTwoBrain.GridSize < Model.TicTacTwoBrain.DimX)
+                {
+                    <div class="move">
+                        <form method="post">
+                            <input type="hidden" name="action" value="move_grid-diagonalUpL"/>
+                            <input type="hidden" name="SelectedX" value="@Model.SelectedX"/>
+                            <input type="hidden" name="SelectedO" value="@Model.SelectedO"/>
+                            <input type="hidden" name="GameName" value="@Model.GameName"/>
+                            <input type="hidden" name="Piece" value="@Model.Piece"/>
+                            <button class="btn arrow-btn">↖</button>
+                        </form>
+                        <form method="post">
+                            <input type="hidden" name="action" value="move_grid-up"/>
+                            <input type="hidden" name="SelectedX" value="@Model.SelectedX"/>
+                            <input type="hidden" name="SelectedO" value="@Model.SelectedO"/>
+                            <input type="hidden" name="GameName" value="@Model.GameName"/>
+                            <input type="hidden" name="Piece" value="@Model.Piece"/>
+                            <button class="btn arrow-btn">↑</button>
+                        </form>
+                        <form method="post">
+                            <input type="hidden" name="action" value="move_grid-diagonalUpR"/>
+                            <input type="hidden" name="SelectedX" value="@Model.SelectedX"/>
+                            <input type="hidden" name="SelectedO" value="@Model.SelectedO"/>
+                            <input type="hidden" name="GameName" value="@Model.GameName"/>
+                            <input type="hidden" name="Piece" value="@Model.Piece"/>
+                            <button class="btn arrow-btn">↗</button>
+                        </form>
+                        <form method="post">
+                            <input type="hidden" name="action" value="move_grid-left"/>
+                            <input type="hidden" name="SelectedX" value="@Model.SelectedX"/>
+                            <input type="hidden" name="SelectedO" value="@Model.SelectedO"/>
+                            <input type="hidden" name="GameName" value="@Model.GameName"/>
+                            <input type="hidden" name="Piece" value="@Model.Piece"/>
+                            <button class="btn arrow-btn">←</button>
+                        </form>
+                        <button class="arrow-btn center"></button>
+                        <form method="post">
+                            <input type="hidden" name="action" value="move_grid-right"/>
+                            <input type="hidden" name="SelectedX" value="@Model.SelectedX"/>
+                            <input type="hidden" name="SelectedO" value="@Model.SelectedO"/>
+                            <input type="hidden" name="GameName" value="@Model.GameName"/>
+                            <input type="hidden" name="Piece" value="@Model.Piece"/>
+                            <button class="btn arrow-btn">→</button>
+                        </form>
+                        <form method="post">
+                            <input type="hidden" name="action" value="move_grid-diagonalDownL"/>
+                            <input type="hidden" name="SelectedX" value="@Model.SelectedX"/>
+                            <input type="hidden" name="SelectedO" value="@Model.SelectedO"/>
+                            <input type="hidden" name="GameName" value="@Model.GameName"/>
+                            <input type="hidden" name="Piece" value="@Model.Piece"/>
+                            <button class="btn arrow-btn">↙</button>
+                        </form>
+                        <form method="post">
+                            <input type="hidden" name="action" value="move_grid-down"/>
+                            <input type="hidden" name="SelectedX" value="@Model.SelectedX"/>
+                            <input type="hidden" name="SelectedO" value="@Model.SelectedO"/>
+                            <input type="hidden" name="GameName" value="@Model.GameName"/>
+                            <input type="hidden" name="Piece" value="@Model.Piece"/>
+                            <button class="btn arrow-btn">↓</button>
+                        </form>
+                        <form method="post">
+                            <input type="hidden" name="action" value="move_grid-diagonalDownR"/>
+                            <input type="hidden" name="SelectedX" value="@Model.SelectedX"/>
+                            <input type="hidden" name="SelectedO" value="@Model.SelectedO"/>
+                            <input type="hidden" name="GameName" value="@Model.GameName"/>
+                            <input type="hidden" name="Piece" value="@Model.Piece"/>
+                            <button class="btn arrow-btn">↘</button>
+                        </form>
+                    </div>
+                }
+            }
+            else if (Model.Piece != Model.TicTacTwoBrain.NextMoveBy && Model.Winner == null)
+            {
+                <div>Not your turn yet!</div>
+            }
+            else
+            {
+                <div class="my-2">
+                    <form method="post">
+                        <input type="hidden" name="action" value="reset" />
+                        <input type="hidden" name="GameName" value="@Model.GameName" />
+                        <input type="hidden" name="Piece" value="@Model.Piece" />
+                        <button class="btn custom">Reset</button>
+                    </form>
+                </div>
+            }
+            <div class="my-2">
+                <form method="post">
+                    <input type="hidden" name="action" value="exit" />
+                    <input type="hidden" name="GameName" value="@Model.GameName" />
+                    <input type="hidden" name="Piece" value="@Model.Piece" />
+                    <button class="btn custom">Exit</button>
+                </form>
+            </div>
+        </div>
     </div>
 </div>

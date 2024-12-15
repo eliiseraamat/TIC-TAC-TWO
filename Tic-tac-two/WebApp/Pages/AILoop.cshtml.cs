@@ -84,6 +84,10 @@ public class AILoop : PageModel
 
         if (action == "exit")
         {
+            if (Winner != null)
+            {
+                _gameRepository.DeleteGame(GameName);
+            }
             return RedirectToPage("Index");
         }
         

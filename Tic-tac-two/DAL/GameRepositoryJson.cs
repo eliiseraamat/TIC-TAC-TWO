@@ -85,4 +85,10 @@ public class GameRepositoryJson : IGameRepository
         }
         return [gameData.PasswordX, gameData.PasswordO];
     }
+
+    public void DeleteGame(string gameName)
+    {
+        var fileName = FileHelper.BasePath + gameName + FileHelper.GameExtension;
+        File.Delete(fileName);
+    }
 }

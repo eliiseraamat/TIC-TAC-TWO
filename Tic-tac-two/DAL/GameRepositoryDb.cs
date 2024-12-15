@@ -119,4 +119,11 @@ public class GameRepositoryDb : IGameRepository
         }
         return [gameState.PasswordX, gameState.PasswordO];
     }
+
+    public void DeleteGame(string gameName)
+    {
+        var gameState = _ctx.GameStates.FirstOrDefault(g => g.Name == gameName);
+        _ctx.GameStates.Remove(gameState);
+        _ctx.SaveChanges();
+    }
 }

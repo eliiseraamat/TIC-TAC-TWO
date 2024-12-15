@@ -126,31 +126,61 @@ public class IndexModel : PageModel
         }
         
         var realPassword = _gameRepository.GetPasswords(GameName);
+        var game = _gameRepository.LoadGame(GameName);
+        var instance = new TicTacTwoBrain(game);
+        
         if (string.IsNullOrWhiteSpace(Password))
         {
             Error = "Enter the password";
             return Page();
         }
-        
-        if (Piece == EGamePiece.X && Password != realPassword[0] || 
-            Piece == EGamePiece.O && Password != realPassword[1] || Piece == EGamePiece.Empty && Password != realPassword[0])
+
+        if ((instance.GameType == EGameType.OnePlayer || instance.GameType == EGameType.TwoPlayer) &&
+            Piece == EGamePiece.Empty)
         {
-            Error = "Wrong password";
+            Error = "You can be observer only in AI vs AI game";
             return Page();
         }
-        var game = _gameRepository.LoadGame(GameName);
-        var instance = new TicTacTwoBrain(game);
+        
         if (instance.GameType == EGameType.TwoPlayer)
         {
+            if (Piece == EGamePiece.X && Password != realPassword[0] ||
+                Piece == EGamePiece.O && Password != realPassword[1])
+            {
+                Error = "Wrong password";
+                return Page();
+            }
             return RedirectToPage("./PlayGame", new { GameName = GameName, Piece = Piece, PasswordX = realPassword[0], PasswordO = realPassword[1] });
         }
         if (instance.GameType == EGameType.OnePlayer)
         {
             if (Piece == EGamePiece.O)
             {
+                if (Password != realPassword[1])
+                {
+                    Error = "Wrong password";
+                    return Page();
+                }
                 return RedirectToPage("./AIGame", new { GameName = GameName, Piece = Piece, PasswordO = realPassword[1] });
             }
+            if (Password != realPassword[0])
+            {
+                Error = "Wrong password";
+                return Page();
+            }
             return RedirectToPage("./AIGame", new { GameName = GameName, Piece = Piece, PasswordX = realPassword[0] });
+        }
+
+        if (Piece != EGamePiece.Empty)
+        {
+            Error = "You can be only observer in AI vs AI game";
+            return Page();
+        }
+
+        if (Password != realPassword[0])
+        {
+            Error = "Wrong password";
+            return Page();
         }
         return RedirectToPage("./AILoop", new { GameName = GameName, Password = realPassword[0] });
     }

@@ -10,62 +10,63 @@
 </div>
 
 
-@if (!string.IsNullOrWhiteSpace(Model.Error))
-{
-    <div class="alert alert-danger" role="alert">
-        @Model.Error
-    </div>
-}
-
-
 <div class="container text-center">
-    <div class="row">
+    @if (!string.IsNullOrWhiteSpace(Model.Error))
+    {
+        <div class="row">
+            <div class="col-2"></div>
+            <div class="col-8 text-start alert alert-danger" role="alert">
+                @Model.Error
+            </div>
+        </div>
+    }
+    <div class="row my-4">
         <div class="col-2"></div>
         <div class="col-5 text-start">
             <h1>New Game</h1>
             <form method="post">
                 <input type="hidden" name="action" value="new"/>
-                <div class="row">
+                <div class="row my-2">
                     <div class="col">
                         <label asp-for="GameType">Choose game type:</label>
                     </div>
                 </div>
-                <div class="row">
+                <div class="row my-1">
                     <div class="col">
                         <input asp-for="GameType" type="radio" value="@EGameType.TwoPlayer" onchange="togglePieceOptions()"/> Two player gameplay
                     </div>
                 </div>
-                <div class="row">
+                <div class="row my-1">
                     <div class="col">
                         <input asp-for="GameType" type="radio" value="@EGameType.OnePlayer" onchange="togglePieceOptions()"/> Player vs AI gameplay
                     </div>
                 </div>
-                <div class="row">
+                <div class="row my-1">
                     <div class="col">
                         <input asp-for="GameType" type="radio" value="@EGameType.AI" onchange="togglePieceOptions()"/> AI vs AI gameplay
                     </div>
                 </div>
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <div class="row">
+                <div class="row my-2">
                     <div class="col">
                         <label asp-for="ConfigName" class="control-label">Options:</label>
                     </div>
                 </div>
-                <div class="row">
+                <div class="row my-1">
                     <div class="col">
-                        <select asp-for="ConfigName" class="form-select" asp-items="Model.ConfigSelectList"></select>
+                        <select asp-for="ConfigName" class="form-select w-50" asp-items="Model.ConfigSelectList"></select>
                     </div>
                 </div>
-                <div class="row piece-options" style="display: none;">
+                <div class="row piece-options my-3" style="display: none;">
                     <div class="col">
                         <label asp-for="Piece">Choose piece:</label>
                         <input asp-for="Piece" type="radio" value="@EGamePiece.X"/> X
                         <input asp-for="Piece" type="radio" value="@EGamePiece.O"/> O
                     </div>
                 </div>
-                <div class="row">
+                <div class="row my-3">
                     <div class="col">
-                        <button type="submit" value="Create" class="btn btn-secondary">Create</button>
+                        <button type="submit" value="Create" class="btn custom">Create</button>
                     </div>
                 </div>
             </form>
@@ -74,36 +75,52 @@
             <h1>Load Game</h1>
             <form method="post">
                 <input type="hidden" name="action" value="load"/>
-                <div class="row">
+                <div class="row my-2">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <div class="col">
                         <label asp-for="GameName" class="control-label">Options:</label>
-                        <select asp-for="GameName" class="form-select" asp-items="Model.GameSelectList"></select>
                     </div>
                 </div>
-                <div class="row">
+                <div class="row my-1">
+                    <div class="col">
+                        <select asp-for="GameName" class="form-select w-50" asp-items="Model.GameSelectList"></select>
+                    </div>
+                </div>
+                <div class="row my-2">
                     <div class="col">
                         <label asp-for="Piece">Choose piece:</label>
+                    </div>
+                </div>
+                <div class="row my-1">
+                    <div class="col">
                         <input asp-for="Piece" type="radio" value="@EGamePiece.X"/> X
+                    </div>
+                </div>
+                <div class="row my-1">
+                    <div class="col">
                         <input asp-for="Piece" type="radio" value="@EGamePiece.O"/> O
+                    </div>
+                </div>
+                <div class="row my-1">
+                    <div class="col">
                         <input asp-for="Piece" type="radio" value="@EGamePiece.Empty"/> Observer
                     </div>
                 </div>
-                <div class="row">
+                <div class="row my-2">
                     <div class="col">
                         <label asp-for="Password">Password:</label>
                         <input asp-for="Password"/>
                     </div>
                 </div>
-                <div class="row">
+                <div class="row my-2">
                     <div class="col">
-                        <input type="submit" value="Load" class="btn btn-secondary"/>
+                        <input type="submit" value="Load" class="btn custom"/>
                     </div>
                 </div>
             </form>
         </div>
     </div>
-    </div>
+</div>
 
 <script>
     function togglePieceOptions() {

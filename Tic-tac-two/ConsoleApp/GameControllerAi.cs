@@ -178,35 +178,32 @@ public class GameControllerAi
                 gameInstance.MakeAMove(newPiece[0], newPiece[1]);
                 return true;
             }
-        } 
-        Random r = new Random();
-        var random = r.Next(0, 2);
-        if (random == 0)
+        }
+
+        var outOfGrid = gameInstance.GetPieceOutOfGrid(piece);
+
+        if (outOfGrid.Count > 0)
         {
-            var grid = gameInstance.AIMoveGrid();
-            if (grid.Count != 0)
-            {
-                gameInstance.MoveGrid(grid[0], grid[1]);
-                return true;
-            }
             var movePiece = gameInstance.AIMovePiece(piece);
             if (movePiece.Count != 0)
             {
                 gameInstance.ChangePieceLocation(movePiece[0], movePiece[1], movePiece[2], movePiece[3]);
                 return true;
             }
-            return false;
-        } 
+        }
+        var grid = gameInstance.AIMoveGrid();
+        if (grid.Count != 0)
+        {
+            gameInstance.MoveGrid(grid[0], grid[1]);
+            return true;
+        }
         var movePiece2 = gameInstance.AIMovePiece(piece);
         if (movePiece2.Count != 0)
         {
             gameInstance.ChangePieceLocation(movePiece2[0], movePiece2[1], movePiece2[2], movePiece2[3]);
             return true;
         }
-        var grid2 = gameInstance.AIMoveGrid();
-        if (grid2.Count == 0) return false;
-        gameInstance.MoveGrid(grid2[0], grid2[1]);
-        return true;
+        return false;
     }
     
     public static string AILoop(IConfigRepository configRepository, IGameRepository gameRepository)

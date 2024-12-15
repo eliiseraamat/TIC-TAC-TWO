@@ -161,7 +161,8 @@ public static class GameController
         }
         else
         {
-            Console.WriteLine($"{player} won!");
+            var playerName = player == EGamePiece.X ? gameInstance.PlayerX : gameInstance.PlayerO;
+            Console.WriteLine($"{playerName} won!");
         }
         
         Console.WriteLine("Would you like to reset game (R) or return to main menu (M)");
