@@ -6,9 +6,8 @@ using Tic_tac_two2;
 
 namespace WebApp.Pages;
 
-public class AILoop : PageModel
+public class AiLoop : PageModel
 {
-    private readonly IConfigRepository _configRepository;
     private readonly IGameRepository _gameRepository;
     
     [BindProperty(SupportsGet = true)] 
@@ -16,9 +15,6 @@ public class AILoop : PageModel
     
     [BindProperty(SupportsGet = true)] 
     public EGamePiece Piece { get; set; } = default!;
-    
-    [BindProperty(SupportsGet = true)] 
-    public string Error { get; set; } = "";
     
     [BindProperty]
     public List<string> Choices { get; set; } = [];
@@ -32,9 +28,8 @@ public class AILoop : PageModel
     public string Password { get; set; } = default!;
     
     
-    public AILoop(IConfigRepository configRepository, IGameRepository gameRepository)
+    public AiLoop(IGameRepository gameRepository)
     {
-        _configRepository = configRepository;
         _gameRepository = gameRepository;
     }
     
@@ -63,11 +58,9 @@ public class AILoop : PageModel
             }
         }
 
-        if (Choices.Count == 0)
-        {
-            Winner = EGamePiece.Empty;
-            RedirectToPage(new { GameName = GameName, Piece = Piece, Winner = Winner, Password = Password });
-        }
+        if (Choices.Count != 0) return;
+        Winner = EGamePiece.Empty;
+        RedirectToPage(new { GameName, Piece, Winner, Password });
     }
 
     public IActionResult OnPost(string action)
@@ -75,45 +68,20 @@ public class AILoop : PageModel
         var game = _gameRepository.LoadGame(GameName);
         TicTacTwoBrain = new TicTacTwoBrain(game);
         
-        if (action == "reset")
+        switch (action)
         {
-            TicTacTwoBrain.ResetGame();
-            GameName = _gameRepository.UpdateGame(TicTacTwoBrain.GetGameStateJson(), GameName);
-            return RedirectToPage(new { GameName = GameName, Piece = Piece, Password = Password });
-        }
-
-        if (action == "exit")
-        {
-            if (Winner != null)
+            case "reset":
+                TicTacTwoBrain.ResetGame();
+                GameName = _gameRepository.UpdateGame(TicTacTwoBrain.GetGameStateJson(), GameName);
+                return RedirectToPage(new { GameName, Piece, Password });
+            case "exit":
             {
-                _gameRepository.DeleteGame(GameName);
+                if (Winner != null)
+                {
+                    _gameRepository.DeleteGame(GameName);
+                }
+                return RedirectToPage("Index");
             }
-            return RedirectToPage("Index");
-        }
-        
-        var amount = TicTacTwoBrain.NextMoveBy == EGamePiece.X ? TicTacTwoBrain.PlayerXPieces : TicTacTwoBrain.PlayerOPieces;
-        if (amount > 0 && !TicTacTwoBrain.IsGridFull())
-        {
-            Choices.Add("Put a new piece on the grid");
-        } 
-
-        if (TicTacTwoBrain.EnoughMovesForMoreOptions())
-        {
-            if (!TicTacTwoBrain.IsGridFull())
-            {
-                Choices.Add("Move one of your pieces to another spot in the grid");
-            }
-
-            if (TicTacTwoBrain.GridSize < TicTacTwoBrain.DimX)
-            {
-                Choices.Add("Move grid one spot horizontally, vertically or diagonally");
-            }
-        }
-        
-        if (Choices.Count == 0)
-        {
-            Winner = EGamePiece.Empty;
-            RedirectToPage(new { GameName = GameName, Piece = Piece, Winner = Winner, Password = Password });
         }
         
         var move = GameControllerAi.AIMove(TicTacTwoBrain, TicTacTwoBrain.NextMoveBy);
@@ -130,7 +98,7 @@ public class AILoop : PageModel
                 Winner = win;
             }
 
-            return RedirectToPage(new { GameName = GameName, Winner = Winner, Password = Password });
+            return RedirectToPage(new { GameName, Winner, Password });
         }
 
         return Page();

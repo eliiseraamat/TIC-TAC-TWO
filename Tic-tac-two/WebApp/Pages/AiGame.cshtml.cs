@@ -2,19 +2,14 @@
 using GameBrain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Tic_tac_two2;
 
 namespace WebApp.Pages;
 
-public class PlayGame : PageModel
+public class AiGame : PageModel
 {
     private readonly IGameRepository _gameRepository;
 
-
-    public PlayGame(IGameRepository gameRepository)
-    {
-        _gameRepository = gameRepository;
-    }
-    
     [BindProperty(SupportsGet = true)] 
     public string GameName { get; set; } = default!;
     
@@ -32,82 +27,124 @@ public class PlayGame : PageModel
     
     public TicTacTwoBrain TicTacTwoBrain { get; set; } = default!;
 
-    [BindProperty(SupportsGet = true)] 
+    [BindProperty] 
     public int SelectedX { get; set; } = -1;
 
-    [BindProperty(SupportsGet = true)] 
+    [BindProperty] 
     public int SelectedO { get; set; } = -1;
 
     [BindProperty(SupportsGet = true)] 
-    public string PasswordX { get; set; } = default!;
+    public bool AImove { get; set; }
     
     [BindProperty(SupportsGet = true)] 
-    public string PasswordO { get; set; } = default!;
+    public string? PasswordX { get; set; }
     
-    public void OnGet(int? x, int? y)
+    [BindProperty(SupportsGet = true)] 
+    public string? PasswordO { get; set; }
+
+    public AiGame(IGameRepository gameRepository)
+    {
+        _gameRepository = gameRepository;
+    }
+    
+    public IActionResult OnGet()
     {
         var game = _gameRepository.LoadGame(GameName);
 
         TicTacTwoBrain = new TicTacTwoBrain(game);
+        
+        var win = TicTacTwoBrain.WinningCondition();
+        
+        if (win != EGamePiece.Empty)
+        {
+            Winner = win;
+            AImove = false;
+        }
         
         if (TempData.ContainsKey("Error"))
         {
             Error = TempData["Error"] as string ?? "";
         }
         
-        var win = TicTacTwoBrain.WinningCondition();
-        if (win != EGamePiece.Empty)
+        if (TempData.ContainsKey("AImove"))
         {
-            Winner = win;
+            AImove = (bool)(TempData["AImove"] ?? false);
         }
-        else
+
+        if (AImove)
         {
-            var amount = Piece == EGamePiece.X ? TicTacTwoBrain.PlayerXPieces : TicTacTwoBrain.PlayerOPieces;
-            if (amount > 0 && !TicTacTwoBrain.IsGridFull())
-            {
-                Choices.Add("Put a new piece on the grid");
-            } 
-
-            if (TicTacTwoBrain.EnoughMovesForMoreOptions())
-            {
-                if (!TicTacTwoBrain.IsGridFull() && TicTacTwoBrain.CheckPieceInBoard(Piece))
-                {
-                    Choices.Add("Move one of your pieces to another spot in the grid");
-                }
-
-                if (TicTacTwoBrain.GridSize < TicTacTwoBrain.DimX)
-                {
-                    Choices.Add("Move grid one spot horizontally, vertically or diagonally");
-                }
-            }
-
-            if (Choices.Count == 0)
+            var pieceAi = Piece == EGamePiece.X ? EGamePiece.O : EGamePiece.X;
+            var moveAi = GameControllerAi.AIMove(TicTacTwoBrain, pieceAi);
+            Console.WriteLine(moveAi);
+            if (!moveAi)
             {
                 Winner = EGamePiece.Empty;
             }
+            else
+            {
+                GameName = _gameRepository.UpdateGame(TicTacTwoBrain.GetGameStateJson(), GameName);
+
+                var winCon = TicTacTwoBrain.WinningCondition();
+                if (winCon != EGamePiece.Empty)
+                {
+                    Winner = winCon;
+                }
+            }
+            AImove = false;
         }
+        
+        var amount = Piece == EGamePiece.X ? TicTacTwoBrain.PlayerXPieces : TicTacTwoBrain.PlayerOPieces;
+        if (amount > 0 && !TicTacTwoBrain.IsGridFull())
+        {
+            Choices.Add("Put a new piece on the grid");
+        } 
+
+        if (TicTacTwoBrain.EnoughMovesForMoreOptions())
+        {
+            if (!TicTacTwoBrain.IsGridFull() && TicTacTwoBrain.CheckPieceInBoard(Piece))
+            {
+                Choices.Add("Move one of your pieces to another spot in the grid");
+            }
+
+            if (TicTacTwoBrain.GridSize < TicTacTwoBrain.DimX)
+            {
+                Choices.Add("Move grid one spot horizontally, vertically or diagonally");
+            }
+        }
+
+        if (Choices.Count == 0)
+        {
+            Winner = EGamePiece.Empty;
+        }
+        return Page();
     }
 
     public IActionResult OnPost(string action)
     {
         var game = _gameRepository.LoadGame(GameName);
         TicTacTwoBrain = new TicTacTwoBrain(game);
-        
         var parts = action.Split('-');
-        if (parts[0] == "reset")
-        {
-            TicTacTwoBrain.ResetGame();
-            GameName = _gameRepository.UpdateGame(TicTacTwoBrain.GetGameStateJson(), GameName);
-            return RedirectToPage(new { GameName, Piece, PasswordX, PasswordO });
-        }
 
-        if (parts[0] == "exit")
+        switch (parts[0])
         {
-            if (Winner != null)
+            case "reset":
             {
-                _gameRepository.DeleteGame(GameName);
+                TicTacTwoBrain.ResetGame();
+                GameName = _gameRepository.UpdateGame(TicTacTwoBrain.GetGameStateJson(), GameName);
+                if (Piece != EGamePiece.O) return RedirectToPage(new { GameName, Piece, PasswordX, PasswordO });
+                TempData["AImove"] = true;
+                return RedirectToPage(new { GameName, Piece, PasswordX, PasswordO });
+
             }
-            return RedirectToPage("Index");
+            case "exit":
+            {
+                if (Winner != null)
+                {
+                    _gameRepository.DeleteGame(GameName);
+                }
+
+                return RedirectToPage("Index");
+            }
         }
         
         var amount = Piece == EGamePiece.X ? TicTacTwoBrain.PlayerXPieces : TicTacTwoBrain.PlayerOPieces;
@@ -185,6 +222,7 @@ public class PlayGame : PageModel
                         Error = "Invalid move!";
                         return Page();
                     }
+
                     isMoveValid = TicTacTwoBrain.ChangePieceLocation(SelectedX, SelectedO, x, y);
                     if (!isMoveValid)
                     {
@@ -224,9 +262,10 @@ public class PlayGame : PageModel
         if (win != EGamePiece.Empty)
         {
             Winner = win;
+            return RedirectToPage(new { GameName, Piece, PasswordX, PasswordO, Winner });
         }
 
-        return RedirectToPage(new { GameName, Piece, Winner, PasswordX, PasswordO});
-
+        TempData["AImove"] = true;
+        return RedirectToPage(new { GameName, Piece, PasswordX, PasswordO});
     }
 }

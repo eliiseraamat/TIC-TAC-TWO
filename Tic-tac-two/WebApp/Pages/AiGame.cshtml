@@ -1,7 +1,7 @@
 ﻿@page
 @using GameBrain
 @using Microsoft.AspNetCore.Mvc.TagHelpers
-@model WebApp.Pages.AIGame
+@model WebApp.Pages.AiGame
 
 @{
     var player = Model.TicTacTwoBrain.NextMoveBy == EGamePiece.X ? Model.TicTacTwoBrain.PlayerX : Model.TicTacTwoBrain.PlayerO;
@@ -51,16 +51,16 @@
                     @if (Model.Winner != EGamePiece.Empty)
                     {
                         var winPlayer = Model.Winner == EGamePiece.X ? Model.TicTacTwoBrain.PlayerX : Model.TicTacTwoBrain.PlayerO;
-                        <div>Winner is @winPlayer</div>
+                        <div class="info">Winner is @winPlayer!</div>
                     }
                     else
                     {
-                        <div>It is a tie!</div>
+                        <div class="info">It is a tie!</div>
                     }
                 }
                 else
                 {
-                    <div>Next move by: @player</div>
+                    <div class="info">Next move by: @player</div>
                 }
             </div>
             <div class="my-4 d-flex align-items-center justify-content-center">
@@ -198,11 +198,11 @@
             }
             else if (Model.Piece != Model.TicTacTwoBrain.NextMoveBy && Model.Winner == null)
             {
-                <div>Not your turn yet!</div>
+                <div class="my-2 text-center">Not your turn yet!</div>
             }
             else
             {
-                <div class="my-2">
+                <div class="my-4 text-center">
                     <form method="post">
                         <input type="hidden" name="action" value="reset" />
                         <input type="hidden" name="GameName" value="@Model.GameName" />
@@ -211,7 +211,7 @@
                     </form>
                 </div>
             }
-            <div class="my-2">
+            <div class="my-4 text-center">
                 <form method="post">
                     <input type="hidden" name="action" value="exit" />
                     <input type="hidden" name="GameName" value="@Model.GameName" />

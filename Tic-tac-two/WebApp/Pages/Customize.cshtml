@@ -2,7 +2,7 @@
 @model WebApp.Pages.Customize
 
 <div class="text-center">
-    <h1 class="display-4">TIC-TAC-TWO</h1>
+    <h1 class="display-4 my-4">TIC-TAC-TWO</h1>
 </div>
 
 <div class="container text-center">
@@ -16,10 +16,10 @@
         </div>
     }
     <form method="post">
-        <div class="row my-3">
+        <div class="row">
             <div class="col-2"></div>
             <div class="col-10 text-start">
-                <h4>Choose following options:</h4>
+                <h4 class="subtitle">Choose following options:</h4>
             </div>
         </div>
         <div class="row my-1">
@@ -88,19 +88,19 @@
         <div class="row my-1">
             <div class="col-2"></div>
             <div class="col-5 text-start">
-                <label asp-for="x" class="control-label">Choose name for player X: </label>
+                <label asp-for="X" class="control-label">Choose name for player X: </label>
             </div>
             <div class="col-5 text-start">
-                <input asp-for="x" value="@Model.x"/>
+                <input asp-for="X" value="@Model.X"/>
             </div>
         </div>
         <div class="row my-1">
             <div class="col-2"></div>
             <div class="col-5 text-start">
-                <label asp-for="o" class="control-label">Choose name for player O: </label>
+                <label asp-for="O" class="control-label">Choose name for player O: </label>
             </div>
             <div class="col-5 text-start">
-                <input asp-for="o" value="@Model.o"/>
+                <input asp-for="O" value="@Model.O"/>
             </div>
         </div>
         <div class="row my-2">

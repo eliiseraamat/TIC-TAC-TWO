@@ -23,31 +23,31 @@
     <div class="row my-4">
         <div class="col-2"></div>
         <div class="col-5 text-start">
-            <h1>New Game</h1>
+            <h1 class="title">New Game</h1>
             <form method="post">
                 <input type="hidden" name="action" value="new"/>
-                <div class="row my-2">
+                <div class="row my-2 heading">
                     <div class="col">
                         <label asp-for="GameType">Choose game type:</label>
                     </div>
                 </div>
                 <div class="row my-1">
                     <div class="col">
-                        <input asp-for="GameType" type="radio" value="@EGameType.TwoPlayer" onchange="togglePieceOptions()"/> Two player gameplay
+                        <input asp-for="GameType" type="radio" value="@EGameType.TwoPlayer"/> Two player gameplay
                     </div>
                 </div>
                 <div class="row my-1">
                     <div class="col">
-                        <input asp-for="GameType" type="radio" value="@EGameType.OnePlayer" onchange="togglePieceOptions()"/> Player vs AI gameplay
+                        <input asp-for="GameType" type="radio" value="@EGameType.OnePlayer"/> Player vs AI gameplay
                     </div>
                 </div>
                 <div class="row my-1">
                     <div class="col">
-                        <input asp-for="GameType" type="radio" value="@EGameType.AI" onchange="togglePieceOptions()"/> AI vs AI gameplay
+                        <input asp-for="GameType" type="radio" value="@EGameType.AI"/> AI vs AI gameplay
                     </div>
                 </div>
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <div class="row my-2">
+                <div class="row my-2 heading">
                     <div class="col">
                         <label asp-for="ConfigName" class="control-label">Options:</label>
                     </div>
@@ -59,7 +59,7 @@
                 </div>
                 <div class="row piece-options my-3" style="display: none;">
                     <div class="col">
-                        <label asp-for="Piece">Choose piece:</label>
+                        <label asp-for="Piece" class="heading">Choose piece:</label>
                         <input asp-for="Piece" type="radio" value="@EGamePiece.X"/> X
                         <input asp-for="Piece" type="radio" value="@EGamePiece.O"/> O
                     </div>
@@ -72,10 +72,10 @@
             </form>
         </div>
         <div class="col-5 text-start">
-            <h1>Load Game</h1>
+            <h1 class="title">Load Game</h1>
             <form method="post">
                 <input type="hidden" name="action" value="load"/>
-                <div class="row my-2">
+                <div class="row my-2 heading">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <div class="col">
                         <label asp-for="GameName" class="control-label">Options:</label>
@@ -86,7 +86,7 @@
                         <select asp-for="GameName" class="form-select w-50" asp-items="Model.GameSelectList"></select>
                     </div>
                 </div>
-                <div class="row my-2">
+                <div class="row my-2 heading">
                     <div class="col">
                         <label asp-for="Piece">Choose piece:</label>
                     </div>
