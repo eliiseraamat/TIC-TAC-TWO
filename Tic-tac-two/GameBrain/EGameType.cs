@@ -4,5 +4,5 @@ public enum EGameType
 {
     TwoPlayer,
     OnePlayer,
-    AI
+    Ai
 }

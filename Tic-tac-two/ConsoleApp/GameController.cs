@@ -9,6 +9,46 @@ public static class GameController
     private static IConfigRepository _configRepository = default!;
     private static IGameRepository _gameRepository = default!;
     
+    private const string MainShortcut = "M";
+    private const string ReturnShortcut = "R";
+    private const string ExitShortcut = "E";
+    private const string NoChoice = "-";
+
+    private static readonly MenuItem MenuNewPiece = new MenuItem()
+    {
+        Title = "Put a new piece on the grid",
+        Shortcut = "N",
+        MenuItemAction = () => 0.ToString()
+    };
+
+    private static readonly MenuItem MenuMovePiece = new MenuItem()
+    {
+        Title = "Move one of your pieces to another spot in the grid",
+        Shortcut = "P",
+        MenuItemAction = () => 0.ToString()
+    };
+
+    private static readonly MenuItem MenuMoveGrid = new MenuItem()
+    {
+        Title = "Move grid one spot horizontally, vertically or diagonally",
+        Shortcut = "G",
+        MenuItemAction = () => 0.ToString()
+    };
+
+    private static readonly MenuItem MenuSave = new MenuItem()
+    {
+        Title = "Save game",
+        Shortcut = "S",
+        MenuItemAction = () => 0.ToString()
+    };
+
+    private static readonly MenuItem MenuQuit = new MenuItem()
+    {
+        Title = "Quit game",
+        Shortcut = "Q",
+        MenuItemAction = () => 0.ToString()
+    };
+    
     public static string MainLoop(IConfigRepository configRepository, IGameRepository gameRepository)
     {
         _configRepository = configRepository;
@@ -45,23 +85,23 @@ public static class GameController
 
             if (winner == null)
             {
-                return "r";
+                return MainShortcut;
             }
 
             choice = EndGame(winner, gameInstance);
 
-            if (choice == "R")
+            if (choice == ReturnShortcut)
             {
                 gameInstance.ResetGame();
             }
             else
             {
-                choice = "M";
+                choice = MainShortcut;
             }
 
-        } while (choice == "R");
+        } while (choice == ReturnShortcut);
 
-        return "r";
+        return MainShortcut;
     }
     
     private static EGamePiece? Game(TicTacTwoBrain gameInstance)
@@ -89,7 +129,7 @@ public static class GameController
             
             var move = MakeMove(gameInstance, userChoice, playerPieces);
 
-            if (move == "q")
+            if (move == MenuQuit.Shortcut)
             {
                 break;
             }
@@ -129,7 +169,7 @@ public static class GameController
 
         switch (userChoice)
         {
-            case "-":
+            case NoChoice:
             case "S":
             case "Q":
                 break;
@@ -139,7 +179,7 @@ public static class GameController
             case "G":
                 Console.WriteLine("Give grid coordinates <x,y>:");
                 break;
-            case "N" :
+            case "N":
                 Console.WriteLine("Give the coordinates of the new piece <x,y>:");
                 break;
         }
@@ -172,10 +212,10 @@ public static class GameController
             var input = Console.ReadLine()!;
             switch (input.ToUpper())
             {
-                case "R":
-                    return "R";
-                case "M":
-                   return "M";
+                case ReturnShortcut:
+                    return ReturnShortcut;
+                case MainShortcut:
+                   return MainShortcut;
                 default:
                     Console.WriteLine("Invalid input!");
                     break;
@@ -199,7 +239,7 @@ public static class GameController
         }
     
         var configMenu = new Menu(
-            EMenuLevel.Secondary, 
+            EMenuLevel.Deep, 
             "TIC-TAC-TWO - choose game config", 
             configMenuItems,
             isCustomMenu: true);
@@ -217,55 +257,30 @@ public static class GameController
             
             if (playerPieces > 0 && !gameInstance.IsGridFull())
             {
-                choices.Add(new MenuItem()
-                {
-                    Title = "Put a new piece on the grid",
-                    Shortcut = "N",
-                    MenuItemAction = () => 0.ToString()
-                });
+                choices.Add(MenuNewPiece);
             }
             
             var piece = gameInstance.NextMoveBy == EGamePiece.X ? EGamePiece.X : EGamePiece.O;
             if (gameInstance.EnoughMovesForMoreOptions() && !gameInstance.IsGridFull() && gameInstance.CheckPieceInBoard(piece))
             {
-                choices.Add(new MenuItem()
-                {
-                    Title = "Move one of your pieces to another spot in the grid",
-                    Shortcut = "P",
-                    MenuItemAction = () => 0.ToString()
-                });
+                choices.Add(MenuMovePiece);
             }
 
             if (gameInstance.EnoughMovesForMoreOptions() && gameInstance.GridSize < gameInstance.DimX)
             {
-                choices.Add(new MenuItem()
-                {
-                    Title = "Move grid one spot horizontally, vertically or diagonally",
-                    Shortcut = "G",
-                    MenuItemAction = () => 0.ToString()
-                });
+                choices.Add(MenuMoveGrid);
             }
             
-            choices.Add(new MenuItem()
-            {
-                Title = "Save game",
-                Shortcut = "S",
-                MenuItemAction = () => 0.ToString()
-            });
+            choices.Add(MenuSave);
             
-            choices.Add(new MenuItem()
-            {
-                Title = "Quit game",
-                Shortcut = "Q",
-                MenuItemAction = () => 0.ToString()
-            });
+            choices.Add(MenuQuit);
             
             if (choices.Count == 2)
             {
-                return "-";
+                return NoChoice;
             }
             
-            foreach (MenuItem item in choices)
+            foreach (var item in choices)
             {
                 Console.WriteLine(item.Shortcut + ") " + item.Title);
             }
@@ -285,13 +300,7 @@ public static class GameController
         do
         {
             var input = Console.ReadLine()!;
-            /*if (userChoice == "" && input.ToUpper().Equals("S", StringComparison.CurrentCultureIgnoreCase))
-            {
-                _gameRepository.SaveGame(gameInstance.GetGameStateJson(), gameInstance.GetGameConfigName());
-                Console.WriteLine("Saved game, give coordinates");
-                continue;
-            }*/
-            if (userChoice == "P")
+            if (userChoice == MenuMovePiece.Shortcut)
             {
                 try
                 {
@@ -359,27 +368,27 @@ public static class GameController
         var madeMove = false;
         do
         {
-            if (userChoice == "S")
+            if (userChoice == MenuSave.Shortcut)
             {
                 var name = _gameRepository.SaveGame(gameInstance.GameState, gameInstance.GetGameConfigName(), EGamePiece.Empty);
                 var passwords = _gameRepository.GetPasswords(name);
                 Console.WriteLine($"Saved game. Game name: {name}, X password: {passwords[0]}, O password: {passwords[1]}");
                 userChoice = DisplayChoices(gameInstance, playerPieces);
             }
-            if (userChoice == "Q")
+            if (userChoice == MenuQuit.Shortcut)
             {
-                return "q";
+                return MenuQuit.Shortcut;
             }
             var coordinates = GetCoordinates(userChoice, gameInstance);
-            if (userChoice == "N" && gameInstance.MakeAMove(coordinates[0], coordinates[1]))
+            if (userChoice == MenuNewPiece.Shortcut && gameInstance.MakeAMove(coordinates[0], coordinates[1]))
             {
                 madeMove = true;
-            } else if (userChoice == "P" &&
+            } else if (userChoice == MenuMovePiece.Shortcut &&
                       gameInstance.ChangePieceLocation(coordinates[0], coordinates[1], coordinates[2],
                           coordinates[3]))
             {
                 madeMove = true;
-            } else if (userChoice == "G" && gameInstance.MoveGrid(coordinates[0], coordinates[1]))
+            } else if (userChoice == MenuMoveGrid.Shortcut && gameInstance.MoveGrid(coordinates[0], coordinates[1]))
             {
                 madeMove = true;
             }
@@ -412,7 +421,7 @@ public static class GameController
 
         if (gameMenuItems.Count == 0)
         {
-            return "r";
+            return ReturnShortcut;
         }
     
         var configMenu = new Menu(
@@ -431,39 +440,30 @@ public static class GameController
         var chosenGameName = _gameRepository.GetGameNames()[configNo];
         
         var chosenGame = _gameRepository.LoadGame(chosenGameName);
+
+        if (chosenGame == null)
+        {
+            return ReturnShortcut;
+        }
         
         var gameInstance= new TicTacTwoBrain(chosenGame);
 
-        string result;
+        var result = gameInstance.GameType == EGameType.TwoPlayer ? ValidatePasswords(chosenGameName) : ValidatePasswordsAi(gameInstance, chosenGameName);
 
-        if (gameInstance.GameType == EGameType.TwoPlayer)
+        if (result == ExitShortcut)
         {
-            result = ValidatePasswords(gameInstance, chosenGameName);
-        }
-        else
-        {
-            result = ValidatePasswordsAI(gameInstance, chosenGameName);
+            return ReturnShortcut;
         }
 
-        if (result == "E")
+        return gameInstance.GameType switch
         {
-            return "r"; //return "e"
-        }
-
-        if (gameInstance.GameType == EGameType.TwoPlayer)
-        {
-            return GameLoop(gameInstance);
-        }
-
-        if (gameInstance.GameType == EGameType.OnePlayer)
-        {
-            return GameControllerAi.GameLoop(gameInstance, EGamePiece.Empty);
-        }
-        
-        return GameControllerAi.AIGameLoop(gameInstance);
+            EGameType.TwoPlayer => GameLoop(gameInstance),
+            EGameType.OnePlayer => GameControllerAi.GameLoop(gameInstance, EGamePiece.Empty),
+            _ => GameControllerAi.AiGameLoop(gameInstance)
+        };
     }
 
-    private static string ValidatePasswords(TicTacTwoBrain gameInstance, string gameName)
+    private static string ValidatePasswords(string gameName)
     {
         var passwords = _gameRepository.GetPasswords(gameName);
         do
@@ -481,31 +481,31 @@ public static class GameController
                         return "";
                     }
 
-                    if (inputO.ToUpper() == "E")
+                    if (inputO.Equals(ExitShortcut, StringComparison.CurrentCultureIgnoreCase))
                     {
-                        return "E";
+                        return ExitShortcut;
                     }
                     Console.WriteLine("Wrong password");
                 } while (true);
             }
 
-            if (inputX.ToUpper() == "E")
+            if (inputX.Equals(ExitShortcut, StringComparison.CurrentCultureIgnoreCase))
             {
-                return "E";
+                return ExitShortcut;
             }
             Console.WriteLine("Wrong password");
         } while (true);
     }
     
-    private static string ValidatePasswordsAI(TicTacTwoBrain gameInstance, string gameName)
+    private static string ValidatePasswordsAi(TicTacTwoBrain gameInstance, string gameName)
     {
         var passwords = _gameRepository.GetPasswords(gameName);
         do
         {
-            if (gameInstance.GameType == EGameType.OnePlayer && passwords[0] != "-")
+            if (gameInstance.GameType == EGameType.OnePlayer && passwords[0] != NoChoice)
             {
                 Console.WriteLine("Give X password or exit (E): ");
-            } else if (gameInstance.GameType == EGameType.OnePlayer && passwords[1] != "-")
+            } else if (gameInstance.GameType == EGameType.OnePlayer && passwords[1] != NoChoice)
             {
                 Console.WriteLine("Give O password or exit (E): ");
             }
@@ -515,7 +515,7 @@ public static class GameController
             }
             var input = Console.ReadLine()!;
 
-            if (gameInstance.GameType == EGameType.OnePlayer && passwords[1] != "-")
+            if (gameInstance.GameType == EGameType.OnePlayer && passwords[1] != NoChoice)
             {
                 if (input == passwords[1])
                 {
@@ -530,9 +530,9 @@ public static class GameController
                 }
             }
 
-            if (input.ToUpper() == "E")
+            if (input.Equals(ExitShortcut, StringComparison.CurrentCultureIgnoreCase))
             {
-                return "E";
+                return ExitShortcut;
             }
             Console.WriteLine("Wrong password");
         } while (true);

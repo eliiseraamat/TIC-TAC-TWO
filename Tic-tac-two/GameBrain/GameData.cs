@@ -2,8 +2,8 @@
 
 public class GameData(string passwordX, string passwordO, GameState gameState)
 {
-    public string PasswordX { get; set; } = passwordX;
-    public string PasswordO { get; set; } = passwordO;
+    public string PasswordX { get; init; } = passwordX;
+    public string PasswordO { get; init; } = passwordO;
     public GameState GameState { get; set; } = gameState;
     
     public override string ToString()

@@ -11,20 +11,21 @@ public class GameRepositoryJson : IGameRepository
         var max = (int)Math.Pow(10, 6) - 1;
         string passwordX;
         string passwordO;
-        if (piece == EGamePiece.Empty)
+        switch (piece)
         {
-            passwordX = random.Next(0, max + 1).ToString($"D{6}");
-            passwordO = random.Next(0, max + 1).ToString($"D{6}");
-        }
-        else if (piece == EGamePiece.X)
-        {
-            passwordX = random.Next(0, max + 1).ToString($"D{6}");
-            passwordO = "-";
-        }
-        else
-        {
-            passwordX = "-";
-            passwordO = random.Next(0, max + 1).ToString($"D{6}");
+            case EGamePiece.Empty:
+                passwordX = random.Next(0, max + 1).ToString($"D{6}");
+                passwordO = random.Next(0, max + 1).ToString($"D{6}");
+                break;
+            case EGamePiece.X:
+                passwordX = random.Next(0, max + 1).ToString($"D{6}");
+                passwordO = "-";
+                break;
+            case EGamePiece.O:
+            default:
+                passwordX = "-";
+                passwordO = random.Next(0, max + 1).ToString($"D{6}");
+                break;
         }
         
         var gameName = gameConfigName + " " + DateTime.Now.ToString("yy-MM-dd_HH-mm-ss");
@@ -34,16 +35,12 @@ public class GameRepositoryJson : IGameRepository
         return gameName;
     }
 
-    public GameState LoadGame(string fileName)
+    public GameState? LoadGame(string fileName)
     {
         var gameDataJson = File.ReadAllText(FileHelper.BasePath + fileName + FileHelper.GameExtension);
         var gameData = JsonSerializer.Deserialize<GameData>(gameDataJson);
-        if (gameData == null) 
-        {
-            throw new Exception("Failed to load the game.");
-        }
-    
-        return gameData.GameState;
+
+        return gameData?.GameState;
     }
 
     public List<string> GetGameNames()
@@ -62,10 +59,10 @@ public class GameRepositoryJson : IGameRepository
 
         if (gameData == null)
         {
-            throw new Exception("Failed to load the game for update.");
+            return "Error";
         }
 
-        gameData.GameState = JsonSerializer.Deserialize<GameState>(jsonStateString);
+        gameData.GameState = JsonSerializer.Deserialize<GameState>(jsonStateString) ?? new GameState();
 
         File.WriteAllText(fileName, gameData.ToString());
         
@@ -77,6 +74,10 @@ public class GameRepositoryJson : IGameRepository
         var name = Directory
             .GetFiles(FileHelper.BasePath, FileHelper.SearchPattern + FileHelper.GameExtension)
             .FirstOrDefault(fileNameParts => Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(fileNameParts)) == gameName);
+        if (name == null)
+        {
+            return [];
+        }
         var gameDataJson = File.ReadAllText(name);
         var gameData = JsonSerializer.Deserialize<GameData>(gameDataJson);
         if (gameData == null)

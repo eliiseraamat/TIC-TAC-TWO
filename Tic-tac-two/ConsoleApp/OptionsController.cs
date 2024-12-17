@@ -8,8 +8,8 @@ public static class OptionsController
     {
         Console.Clear();
 
-        var minValue = 3;
-        var maxValue = 40;
+        const int minValue = 3;
+        const int maxValue = 40;
 
         Console.WriteLine($"Choose board size ({minValue} - {maxValue}): ");
         
@@ -45,7 +45,7 @@ public static class OptionsController
         var playerX = Console.ReadLine()!;
         chosenConfig.PlayerX = playerX;
 
-        var playerO = getPlayerName(playerX);
+        var playerO = GetPlayerName(playerX);
         chosenConfig.PlayerO = playerO;
 
         return chosenConfig;
@@ -82,7 +82,7 @@ public static class OptionsController
                 var inputSplit = input.Split(",");
                 if (inputSplit.Length == 2)
                 {
-                    var list = inputSplit.Select(number => int.Parse(number)).ToList();
+                    var list = inputSplit.Select(int.Parse).ToList();
 
                     if (list[0] >= 0 && list[1] >= 0 && list[0] + gridSize - 1 < boardSize && list[1] + gridSize - 1 < boardSize)
                     {
@@ -102,7 +102,7 @@ public static class OptionsController
         } while (true);
     }
 
-    private static string getPlayerName(string playerX)
+    private static string GetPlayerName(string playerX)
     {
         Console.WriteLine("Choose name for player 0:");
         do
@@ -124,15 +124,8 @@ public static class OptionsController
         Console.WriteLine("Choose if X starts (X) or O starts (O):");
     
         var chosenPiece = GetStartingPiece();
-    
-        if (chosenPiece == "X")
-        {
-            TicTacTwoBrain.SetStartingPiece(EGamePiece.X);
-        }
-        else
-        {
-            TicTacTwoBrain.SetStartingPiece(EGamePiece.O);
-        }
+
+        TicTacTwoBrain.SetStartingPiece(chosenPiece == "X" ? EGamePiece.X : EGamePiece.O);
         return "";
     }
 

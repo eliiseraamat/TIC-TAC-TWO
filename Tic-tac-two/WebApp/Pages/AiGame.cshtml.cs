@@ -6,7 +6,7 @@ using Tic_tac_two2;
 
 namespace WebApp.Pages;
 
-public class AiGame : PageModel
+public class AiGame : BaseGamePageModel
 {
     private readonly IGameRepository _gameRepository;
 
@@ -50,6 +50,11 @@ public class AiGame : PageModel
     public IActionResult OnGet()
     {
         var game = _gameRepository.LoadGame(GameName);
+        
+        if (game == null)
+        {
+            return RedirectToPage("/Index", new { Error = "Game not found!" });
+        }
 
         TicTacTwoBrain = new TicTacTwoBrain(game);
         
@@ -74,8 +79,8 @@ public class AiGame : PageModel
         if (AImove)
         {
             var pieceAi = Piece == EGamePiece.X ? EGamePiece.O : EGamePiece.X;
-            var moveAi = GameControllerAi.AIMove(TicTacTwoBrain, pieceAi);
-            Console.WriteLine(moveAi);
+            var moveAi = GameControllerAi.AiMove(TicTacTwoBrain, pieceAi);
+
             if (!moveAi)
             {
                 Winner = EGamePiece.Empty;
@@ -93,24 +98,7 @@ public class AiGame : PageModel
             AImove = false;
         }
         
-        var amount = Piece == EGamePiece.X ? TicTacTwoBrain.PlayerXPieces : TicTacTwoBrain.PlayerOPieces;
-        if (amount > 0 && !TicTacTwoBrain.IsGridFull())
-        {
-            Choices.Add("Put a new piece on the grid");
-        } 
-
-        if (TicTacTwoBrain.EnoughMovesForMoreOptions())
-        {
-            if (!TicTacTwoBrain.IsGridFull() && TicTacTwoBrain.CheckPieceInBoard(Piece))
-            {
-                Choices.Add("Move one of your pieces to another spot in the grid");
-            }
-
-            if (TicTacTwoBrain.GridSize < TicTacTwoBrain.DimX)
-            {
-                Choices.Add("Move grid one spot horizontally, vertically or diagonally");
-            }
-        }
+        Choices = GetChoices(TicTacTwoBrain, Piece);
 
         if (Choices.Count == 0)
         {
@@ -122,6 +110,12 @@ public class AiGame : PageModel
     public IActionResult OnPost(string action)
     {
         var game = _gameRepository.LoadGame(GameName);
+        
+        if (game == null)
+        {
+            return RedirectToPage("/Index", new { Error = "Game not found!" });
+        }
+        
         TicTacTwoBrain = new TicTacTwoBrain(game);
         var parts = action.Split('-');
 
@@ -138,33 +132,11 @@ public class AiGame : PageModel
             }
             case "exit":
             {
-                if (Winner != null)
-                {
-                    _gameRepository.DeleteGame(GameName);
-                }
-
-                return RedirectToPage("Index");
+                return Exit(_gameRepository, GameName, Winner);
             }
         }
         
-        var amount = Piece == EGamePiece.X ? TicTacTwoBrain.PlayerXPieces : TicTacTwoBrain.PlayerOPieces;
-        if (amount > 0 && !TicTacTwoBrain.IsGridFull())
-        {
-            Choices.Add("Put a new piece on the grid");
-        }
-
-        if (TicTacTwoBrain.EnoughMovesForMoreOptions())
-        {
-            if (!TicTacTwoBrain.IsGridFull() && TicTacTwoBrain.CheckPieceInBoard(Piece))
-            {
-                Choices.Add("Move one of your pieces to another spot in the grid");
-            }
-
-            if (TicTacTwoBrain.GridSize < TicTacTwoBrain.DimX)
-            {
-                Choices.Add("Move grid one spot horizontally, vertically or diagonally");
-            }
-        }
+        Choices = GetChoices(TicTacTwoBrain, Piece);
 
         var isMoveValid = false;
 
@@ -181,27 +153,7 @@ public class AiGame : PageModel
                 return Page();
             case "move_grid":
             {
-                var direction = parts[1];
-                isMoveValid = direction switch
-                {
-                    "up" => TicTacTwoBrain.MoveGrid(TicTacTwoBrain.GridCoordinates[0],
-                        TicTacTwoBrain.GridCoordinates[1] - 1),
-                    "down" => TicTacTwoBrain.MoveGrid(TicTacTwoBrain.GridCoordinates[0],
-                        TicTacTwoBrain.GridCoordinates[1] + 1),
-                    "right" => TicTacTwoBrain.MoveGrid(TicTacTwoBrain.GridCoordinates[0] + 1,
-                        TicTacTwoBrain.GridCoordinates[1]),
-                    "left" => TicTacTwoBrain.MoveGrid(TicTacTwoBrain.GridCoordinates[0] - 1,
-                        TicTacTwoBrain.GridCoordinates[1]),
-                    "diagonalUpL" => TicTacTwoBrain.MoveGrid(TicTacTwoBrain.GridCoordinates[0] - 1,
-                        TicTacTwoBrain.GridCoordinates[1] - 1),
-                    "diagonalUpR" => TicTacTwoBrain.MoveGrid(TicTacTwoBrain.GridCoordinates[0] + 1,
-                        TicTacTwoBrain.GridCoordinates[1] - 1),
-                    "diagonalDownL" => TicTacTwoBrain.MoveGrid(TicTacTwoBrain.GridCoordinates[0] - 1,
-                        TicTacTwoBrain.GridCoordinates[1] + 1),
-                    "diagonalDownR" => TicTacTwoBrain.MoveGrid(TicTacTwoBrain.GridCoordinates[0] + 1,
-                        TicTacTwoBrain.GridCoordinates[1] + 1),
-                    _ => isMoveValid
-                };
+                isMoveValid = MoveGrid(TicTacTwoBrain, parts[1]);
 
                 if (!isMoveValid)
                 {
@@ -220,6 +172,8 @@ public class AiGame : PageModel
                     if (!TicTacTwoBrain.EnoughMovesForMoreOptions())
                     {
                         Error = "Invalid move!";
+                        SelectedX = -1;
+                        SelectedO = -1;
                         return Page();
                     }
 

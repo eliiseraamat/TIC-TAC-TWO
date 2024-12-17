@@ -5,7 +5,7 @@ public class GameState
     public EGamePiece[][] GameBoard { get; set; }
     public EGamePiece NextMoveBy { get; set; }
     
-    public GameConfiguration GameConfiguration { get; set; }
+    public GameConfiguration GameConfiguration { get; init; }
 
     public List<int> GridCoordinates { get; set; } = [1, 1];
     
@@ -13,18 +13,18 @@ public class GameState
     
     public int PlayerOPieces { get; set; }
 
-    public string PlayerX { get; set; } = "X";
+    public string PlayerX { get; init; } = "X";
 
-    public string PlayerO { get; set; } = "O";
+    public string PlayerO { get; init; } = "O";
     
-    public EGamePiece StartingPiece { get; set; }
+    public EGamePiece StartingPiece { get; init; }
     
-    public EGameType GameType { get; set; }
+    public EGameType GameType { get; init; }
 
     public GameState() 
     {
         GameBoard = new EGamePiece[5][];
-        for (int i = 0; i < GameBoard.Length; i++)
+        for (var i = 0; i < GameBoard.Length; i++)
         {
             GameBoard[i] = new EGamePiece[5];
         }

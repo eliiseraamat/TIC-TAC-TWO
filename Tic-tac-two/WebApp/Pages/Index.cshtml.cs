@@ -73,7 +73,7 @@ public class IndexModel : PageModel
                 return Page();
             }
 
-            if (GameType != EGameType.AI && Piece == null)
+            if (GameType != EGameType.Ai && Piece == null)
             {
                 Error = "Choose piece!";
                 return Page();
@@ -86,9 +86,9 @@ public class IndexModel : PageModel
             if (GameType == EGameType.OnePlayer)
             {
                 chosenConfig.GameType = EGameType.OnePlayer;
-            } else if (GameType == EGameType.AI)
+            } else if (GameType == EGameType.Ai)
             {
-                chosenConfig.GameType = EGameType.AI;
+                chosenConfig.GameType = EGameType.Ai;
             }
             var gameInstance = new TicTacTwoBrain(chosenConfig);
             var gameName = GameType switch
@@ -116,9 +116,16 @@ public class IndexModel : PageModel
             return Page();
         }
         
-        var realPassword = _gameRepository.GetPasswords(GameName);
         var game = _gameRepository.LoadGame(GameName);
+
+        if (game == null)
+        {
+            Error = "Game not found!";
+            return Page();
+        }
         var instance = new TicTacTwoBrain(game);
+        
+        var realPassword = _gameRepository.GetPasswords(GameName);
         
         if (string.IsNullOrWhiteSpace(Password))
         {
@@ -127,7 +134,7 @@ public class IndexModel : PageModel
         }
 
         if ((instance.GameType == EGameType.OnePlayer || instance.GameType == EGameType.TwoPlayer) &&
-            Piece == EGamePiece.Empty || Piece != EGamePiece.Empty && GameType == EGameType.AI)
+            Piece == EGamePiece.Empty || Piece != EGamePiece.Empty && GameType == EGameType.Ai)
         {
             Error = "You can be observer only in AI vs AI game!";
             return Page();

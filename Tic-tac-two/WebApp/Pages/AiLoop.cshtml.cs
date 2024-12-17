@@ -6,7 +6,7 @@ using Tic_tac_two2;
 
 namespace WebApp.Pages;
 
-public class AiLoop : PageModel
+public class AiLoop : BaseGamePageModel
 {
     private readonly IGameRepository _gameRepository;
     
@@ -33,39 +33,33 @@ public class AiLoop : PageModel
         _gameRepository = gameRepository;
     }
     
-    public void OnGet()
+    public IActionResult OnGet()
     {
         var game = _gameRepository.LoadGame(GameName);
+        
+        if (game == null)
+        {
+            return RedirectToPage("/Index", new { Error = "Game not found!" });
+        }
 
         TicTacTwoBrain = new TicTacTwoBrain(game);
         
-        var amount = TicTacTwoBrain.NextMoveBy == EGamePiece.X ? TicTacTwoBrain.PlayerXPieces : TicTacTwoBrain.PlayerOPieces;
-        if (amount > 0 && !TicTacTwoBrain.IsGridFull())
-        {
-            Choices.Add("Put a new piece on the grid");
-        } 
+        Choices = GetChoices(TicTacTwoBrain, Piece);
 
-        if (TicTacTwoBrain.EnoughMovesForMoreOptions())
-        {
-            if (!TicTacTwoBrain.IsGridFull())
-            {
-                Choices.Add("Move one of your pieces to another spot in the grid");
-            }
-
-            if (TicTacTwoBrain.GridSize < TicTacTwoBrain.DimX)
-            {
-                Choices.Add("Move grid one spot horizontally, vertically or diagonally");
-            }
-        }
-
-        if (Choices.Count != 0) return;
+        if (Choices.Count != 0) return Page();
         Winner = EGamePiece.Empty;
-        RedirectToPage(new { GameName, Piece, Winner, Password });
+        return RedirectToPage(new { GameName, Piece, Winner, Password });
     }
 
     public IActionResult OnPost(string action)
     {
         var game = _gameRepository.LoadGame(GameName);
+        
+        if (game == null)
+        {
+            return RedirectToPage("/Index", new { Error = "Game not found!" });
+        }
+        
         TicTacTwoBrain = new TicTacTwoBrain(game);
         
         switch (action)
@@ -76,15 +70,11 @@ public class AiLoop : PageModel
                 return RedirectToPage(new { GameName, Piece, Password });
             case "exit":
             {
-                if (Winner != null)
-                {
-                    _gameRepository.DeleteGame(GameName);
-                }
-                return RedirectToPage("Index");
+                return Exit(_gameRepository, GameName, Winner);
             }
         }
         
-        var move = GameControllerAi.AIMove(TicTacTwoBrain, TicTacTwoBrain.NextMoveBy);
+        var move = GameControllerAi.AiMove(TicTacTwoBrain, TicTacTwoBrain.NextMoveBy);
         if (!move)
         {
             Winner = EGamePiece.Empty;
@@ -92,11 +82,7 @@ public class AiLoop : PageModel
         else
         {
             GameName = _gameRepository.UpdateGame(TicTacTwoBrain.GetGameStateJson(), GameName);
-            var win = TicTacTwoBrain.WinningCondition();
-            if (win != EGamePiece.Empty)
-            {
-                Winner = win;
-            }
+            Winner = GetWinner(TicTacTwoBrain);
 
             return RedirectToPage(new { GameName, Winner, Password });
         }

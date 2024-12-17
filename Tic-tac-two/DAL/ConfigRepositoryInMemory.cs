@@ -4,17 +4,18 @@ namespace DAL;
 
 public class ConfigRepositoryInMemory : IConfigRepository
 {
-    private List<GameConfiguration> _gameConfigurations = new List<GameConfiguration>()
-    {
+    private readonly List<GameConfiguration> _gameConfigurations =
+    [
         new GameConfiguration()
         {
             Name = "Classical"
         },
+
         new GameConfiguration()
         {
             Name = "Customize"
         }
-    };
+    ];
     
     public List<string> GetConfigurationNames()
     {

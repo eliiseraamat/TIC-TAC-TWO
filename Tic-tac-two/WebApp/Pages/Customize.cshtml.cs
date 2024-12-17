@@ -122,7 +122,7 @@ public class Customize : PageModel
             EGameType.OnePlayer => Piece == EGamePiece.O
                 ? RedirectToPage("/AIGame", new { GameName = gameName, Piece, AImove = true, passwordO = passwords[1] })
                 : RedirectToPage("/AIGame", new { GameName = gameName, Piece, PasswordX = passwords[0] }),
-            EGameType.AI => RedirectToPage("/AILoop", new { GameName = gameName, Password = passwords[0] }),
+            EGameType.Ai => RedirectToPage("/AILoop", new { GameName = gameName, Password = passwords[0] }),
             _ => RedirectToPage("/PlayGame",
                 new { GameName = gameName, Piece, PasswordX = passwords[0], passwordO = passwords[1] })
         };

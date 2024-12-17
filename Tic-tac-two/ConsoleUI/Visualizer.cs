@@ -12,28 +12,13 @@ public static class Visualizer
         Console.Write("   ");
         for (var x = 0; x < gameInstance.DimX; x++)
         {
-            if (x < 10)
-            {
-                Console.Write($" {x}  ");
-            }
-            else
-            {
-                Console.Write($" {x} ");
-            }
+            Console.Write(x < 10 ? $" {x}  " : $" {x} ");
         }
         Console.WriteLine(); 
         
         for (var y = 0; y < gameInstance.DimY; y++)
         {
-            if (y < 10)
-            {
-                Console.Write($" {y} ");
-            }
-            else
-            {
-                Console.Write($" {y}");
-            }
-            //Console.Write($" {y} ");
+            Console.Write(y < 10 ? $" {y} " : $" {y}");
             for (var x = 0; x < gameInstance.DimX; x++)
             {
                 if (y >= coordinates[1] && y <= coordinates[1] + gridSize - 1 && x >= coordinates[0] && x <= coordinates[0] + gridSize - 1)

@@ -22,23 +22,21 @@ public class ConfigRepositoryJson : IConfigRepository
         return config ?? throw new InvalidOperationException();
     }
 
-    private void CheckAndCreateInitialConfig()
+    private static void CheckAndCreateInitialConfig()
     {
         if (!Directory.Exists(FileHelper.BasePath))
         {
             Directory.CreateDirectory(FileHelper.BasePath);
         }
         var data = Directory.GetFiles(FileHelper.BasePath, FileHelper.SearchPattern + FileHelper.ConfigExtension).ToList();
-        if (data.Count == 0)
+        if (data.Count != 0) return;
+        var hardCodedRepo = new ConfigRepositoryInMemory();
+        var optionNames = hardCodedRepo.GetConfigurationNames();
+        foreach (var optionName in optionNames)
         {
-            var hardCodedRepo = new ConfigRepositoryInMemory();
-            var optionNames = hardCodedRepo.GetConfigurationNames();
-            foreach (var optionName in optionNames)
-            {
-                var gameOption = hardCodedRepo.GetConfigurationByName(optionName);
-                var optionJsonStr = JsonSerializer.Serialize(gameOption);
-                File.WriteAllText(FileHelper.BasePath + gameOption.Name + FileHelper.ConfigExtension, optionJsonStr);
-            }
+            var gameOption = hardCodedRepo.GetConfigurationByName(optionName);
+            var optionJsonStr = JsonSerializer.Serialize(gameOption);
+            File.WriteAllText(FileHelper.BasePath + gameOption.Name + FileHelper.ConfigExtension, optionJsonStr);
         }
     }
 }

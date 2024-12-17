@@ -1,23 +1,14 @@
-﻿using System.Diagnostics;
-using System.Text.Json;
+﻿using System.Text.Json;
 using Domain;
 using GameBrain;
-using Microsoft.EntityFrameworkCore;
 
 namespace DAL;
 
-public class GameRepositoryDb : IGameRepository
+public class GameRepositoryDb(AppDbContext context) : IGameRepository
 {
-    private readonly AppDbContext _ctx;
-    
-    public GameRepositoryDb(AppDbContext context)
-    {
-        _ctx = context;
-    }
-    
     public string SaveGame(GameState state, string gameConfigName, EGamePiece piece)
     {
-        var configuration = _ctx.Configurations.FirstOrDefault(c => c.Name == gameConfigName);
+        var configuration = context.Configurations.FirstOrDefault(c => c.Name == gameConfigName);
         
         if (configuration == null)
         {
@@ -28,20 +19,21 @@ public class GameRepositoryDb : IGameRepository
         var max = (int)Math.Pow(10, 6) - 1;
         string passwordX;
         string passwordO;
-        if (piece == EGamePiece.Empty)
+        switch (piece)
         {
-            passwordX = random.Next(0, max + 1).ToString($"D{6}");
-            passwordO = random.Next(0, max + 1).ToString($"D{6}");
-        }
-        else if (piece == EGamePiece.X)
-        {
-            passwordX = random.Next(0, max + 1).ToString($"D{6}");
-            passwordO = "-";
-        }
-        else
-        {
-            passwordX = "-";
-            passwordO = random.Next(0, max + 1).ToString($"D{6}");
+            case EGamePiece.Empty:
+                passwordX = random.Next(0, max + 1).ToString($"D{6}");
+                passwordO = random.Next(0, max + 1).ToString($"D{6}");
+                break;
+            case EGamePiece.X:
+                passwordX = random.Next(0, max + 1).ToString($"D{6}");
+                passwordO = "-";
+                break;
+            case EGamePiece.O:
+            default:
+                passwordX = "-";
+                passwordO = random.Next(0, max + 1).ToString($"D{6}");
+                break;
         }
         
         var gameState = new SaveGame()
@@ -54,76 +46,60 @@ public class GameRepositoryDb : IGameRepository
             Configuration = configuration
         };
 
-        _ctx.GameStates.Add(gameState);
-        _ctx.SaveChanges();
+        context.GameStates.Add(gameState);
+        context.SaveChanges();
         return gameState.Name;
     }
 
-    public GameState LoadGame(string gameName)
+    public GameState? LoadGame(string gameName)
     {
-        var games = _ctx.GameStates;
+        var games = context.GameStates;
         foreach (var game in games)
         {
-            if (game.Name == gameName)
-            {
-                var gameState = JsonSerializer.Deserialize<GameState>(game.Game);
-                if (gameState != null) return gameState;
-            }
+            if (game.Name != gameName) continue;
+            var gameState = JsonSerializer.Deserialize<GameState>(game.Game);
+            if (gameState != null) return gameState;
         }
-        throw new Exception("Failed to load the game.");
-    }
-    
-    public GameState LoadGame(int id)
-    {
-        var games = _ctx.GameStates;
-        foreach (var game in games)
-        {
-            if (game.Id == id)
-            {
-                var gameState = JsonSerializer.Deserialize<GameState>(game.Game);
-                if (gameState != null) return gameState;
-            }
-        }
-        throw new Exception("Failed to load the game.");
+        return null;
     }
 
     public List<string> GetGameNames()
     {
-        var games = _ctx.GameStates;
+        var games = context.GameStates;
 
         return games.Select(game => game.Name).ToList();
     }
 
     public string UpdateGame(string jsonStateString, string gameName)
     {
-        var gameState = _ctx.GameStates.FirstOrDefault(g => g.Name == gameName);
+        var gameState = context.GameStates.FirstOrDefault(g => g.Name == gameName);
 
         if (gameState == null)
         {
-            throw new Exception($"Game with name '{gameName}' not found.");
+            return "Error";
         }
         
         gameState.Game = jsonStateString;
         
-        _ctx.SaveChanges();
+        context.SaveChanges();
         
         return gameName;
     }
 
     public List<string> GetPasswords(string gameName)
     {
-        var gameState = _ctx.GameStates.FirstOrDefault(g => g.Name == gameName);
+        var gameState = context.GameStates.FirstOrDefault(g => g.Name == gameName);
         if (gameState == null)
         {
-            throw new Exception($"Game with name '{gameName}' not found.");
+            return [];
         }
         return [gameState.PasswordX, gameState.PasswordO];
     }
 
     public void DeleteGame(string gameName)
     {
-        var gameState = _ctx.GameStates.FirstOrDefault(g => g.Name == gameName);
-        _ctx.GameStates.Remove(gameState);
-        _ctx.SaveChanges();
+        var gameState = context.GameStates.FirstOrDefault(g => g.Name == gameName);
+        if (gameState != null) context.GameStates.Remove(gameState);
+        context.SaveChanges();
     }
 }

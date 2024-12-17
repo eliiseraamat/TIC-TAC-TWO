@@ -4,13 +4,13 @@ namespace Domain;
 
 public class Configuration
 { 
-    public int Id { get; set; }
+    public int Id { get; init; }
     
     [MaxLength(128)] 
-    public string Name { get; set; } = default!;
+    public string Name { get; init; } = default!;
     
     [MaxLength(10240)]
-    public string GameConfig { get; set; } = default!;
+    public string GameConfig { get; init; } = default!;
     
-    public ICollection<SaveGame>? SaveGames { get; set; }
+    public ICollection<SaveGame>? SaveGames { get; init; }
 }

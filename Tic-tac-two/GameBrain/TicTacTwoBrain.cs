@@ -4,7 +4,7 @@ public class TicTacTwoBrain
 {
     private readonly GameState _gameState;
 
-    private static EGamePiece _startingPiece { get; set; } = EGamePiece.X;
+    private static EGamePiece StartingPiece { get; set; } = EGamePiece.X;
 
 
     public TicTacTwoBrain(GameConfiguration gameConfiguration)
@@ -19,11 +19,11 @@ public class TicTacTwoBrain
             gameConfiguration, 
             gameBoard, 
             gameConfiguration.Pieces, 
-            gameConfiguration.Pieces, 
-            new List<int>(gameConfiguration.GridCoordinates), 
+            gameConfiguration.Pieces,
+            [..gameConfiguration.GridCoordinates], 
             gameConfiguration.PlayerX, 
             gameConfiguration.PlayerO, 
-            _startingPiece,
+            StartingPiece,
             gameConfiguration.GameType);
     }
     
@@ -43,7 +43,7 @@ public class TicTacTwoBrain
     
     public string PlayerO => _gameState.PlayerO;
 
-    public static void SetStartingPiece(EGamePiece piece) => _startingPiece = piece;
+    public static void SetStartingPiece(EGamePiece piece) => StartingPiece = piece;
     
     public int DimX => _gameState.GameBoard.Length;
     
@@ -158,10 +158,10 @@ public class TicTacTwoBrain
             gameBoard[x] = new EGamePiece[_gameState.GameConfiguration.BoardSize];
         }
         _gameState.GameBoard = gameBoard;
-        _gameState.NextMoveBy = _startingPiece;
+        _gameState.NextMoveBy = StartingPiece;
         _gameState.PlayerXPieces = _gameState.GameConfiguration.Pieces;
         _gameState.PlayerOPieces = _gameState.GameConfiguration.Pieces;
-        _gameState.GridCoordinates = new List<int>(_gameState.GameConfiguration.GridCoordinates);
+        _gameState.GridCoordinates = [.._gameState.GameConfiguration.GridCoordinates];
     }
 
     public bool EnoughMovesForMoreOptions()
@@ -410,59 +410,54 @@ public class TicTacTwoBrain
         return EGamePiece.Empty;
     }
 
-    public List<int> AINewPiece(EGamePiece piece)
+    public List<int> AiNewPiece(EGamePiece piece)
     {
-        var horizontally = CheckAIHorizontally(piece);
+        var horizontally = CheckAiHorizontally(piece);
         if (horizontally.Count > 0)
         {
             return horizontally;
         }
-        var vertically = CheckAIVertically(piece);
+        var vertically = CheckAiVertically(piece);
         if (vertically.Count > 0)
         {
             return vertically;
         }
-        var diagonally1 = CheckAIDiagonally1(piece);
+        var diagonally1 = CheckAiDiagonally1(piece);
         if (diagonally1.Count > 0)
         {
             return diagonally1;
         }
-        var diagonally2 = CheckAIDiagonally2(piece);
+        var diagonally2 = CheckAiDiagonally2(piece);
         if (diagonally2.Count > 0)
         {
             return diagonally2;
         }
         var opponentPiece = piece == EGamePiece.X ? EGamePiece.O : EGamePiece.X;
-        var opponentHorizontally = CheckAIHorizontally(opponentPiece);
+        var opponentHorizontally = CheckAiHorizontally(opponentPiece);
         if (opponentHorizontally.Count > 0)
         {
             return opponentHorizontally;
         }
-        var opponentVertically = CheckAIVertically(opponentPiece);
+        var opponentVertically = CheckAiVertically(opponentPiece);
         if (opponentVertically.Count > 0)
         {
             return opponentVertically;
         }
-        var opponentDiagonally1 = CheckAIDiagonally1(opponentPiece);
+        var opponentDiagonally1 = CheckAiDiagonally1(opponentPiece);
         if (opponentDiagonally1.Count > 0)
         {
             return opponentDiagonally1;
         }
-        var opponentDiagonally2 = CheckAIDiagonally2(opponentPiece);
+        var opponentDiagonally2 = CheckAiDiagonally2(opponentPiece);
         if (opponentDiagonally2.Count > 0)
         {
             return opponentDiagonally2;
         }
 
-        if (!IsGridFull())
-        {
-            return  RandomAIMove(piece);
-        }
-
-        return [];
+        return !IsGridFull() ? RandomAiMove() : [];
     }
     
-    private List<int> CheckAIHorizontally(EGamePiece piece)
+    private List<int> CheckAiHorizontally(EGamePiece piece)
     {
         for (var y = GridCoordinates[1]; y < GridCoordinates[1] + GridSize; y++)
         {
@@ -507,7 +502,7 @@ public class TicTacTwoBrain
         return [];
     }
     
-    private List<int> CheckAIVertically(EGamePiece piece)
+    private List<int> CheckAiVertically(EGamePiece piece)
     {
         for (var x = GridCoordinates[0]; x < GridCoordinates[0] + GridSize; x++)
         {
@@ -552,7 +547,7 @@ public class TicTacTwoBrain
         return [];
     }
 
-    private List<int> RandomAIMove(EGamePiece piece)
+    private List<int> RandomAiMove()
     {
         do
         {
@@ -568,7 +563,7 @@ public class TicTacTwoBrain
         } while (true);
     }
     
-    private List<int> CheckAIDiagonally1(EGamePiece piece)
+    private List<int> CheckAiDiagonally1(EGamePiece piece)
     {
         for (var x = GridCoordinates[0]; x < GridCoordinates[0] + GridSize; x++)
         {
@@ -664,7 +659,7 @@ public class TicTacTwoBrain
         return [];
     }
     
-    private List<int> CheckAIDiagonally2(EGamePiece piece)
+    private List<int> CheckAiDiagonally2(EGamePiece piece)
     {
         for (var x = GridCoordinates[0] + GridSize - 1; x >= GridCoordinates[0]; x--)
         {
@@ -758,7 +753,7 @@ public class TicTacTwoBrain
         return [];
     }
 
-    public List<int> AIMoveGrid()
+    public List<int> AiMoveGrid()
     {
         if (GridSize < DimX)
         {
@@ -771,52 +766,31 @@ public class TicTacTwoBrain
                 var random = directions[randomIndex];
                 directions.RemoveAt(randomIndex);
 
-                if (random == 0 && GridCoordinates[0] > 0)
+                switch (random)
                 {
-                    return [GridCoordinates[0] - 1, GridCoordinates[1]];
-                }
-
-                if (random == 1 && GridCoordinates[1] > 0)
-                {
-                    return [GridCoordinates[0], GridCoordinates[1] - 1];
-                }
-
-                if (random == 2 && GridCoordinates[0] + GridSize < DimX)
-                {
-                    return [GridCoordinates[0] + 1, GridCoordinates[1]];
-                }
-
-                if (random == 3 && GridCoordinates[1] + GridSize < DimY)
-                {
-                    return [GridCoordinates[0], GridCoordinates[1] + 1];
-                }
-
-                if (random == 4 && GridCoordinates[0] > 0 && GridCoordinates[1] > 0)
-                {
-                    return [GridCoordinates[0] - 1, GridCoordinates[1] - 1];
-                }
-
-                if (random == 5 && GridCoordinates[0] + GridSize < DimX && GridCoordinates[1] > 0)
-                {
-                    return [GridCoordinates[0] + 1, GridCoordinates[1] - 1];
-                }
-
-                if (random == 6 && GridCoordinates[0] > 0 && GridCoordinates[1] + GridSize < DimY)
-                {
-                    return [GridCoordinates[0] - 1, GridCoordinates[1] + 1];
-                }
-
-                if (random == 7 && GridCoordinates[0] + GridSize < DimX && GridCoordinates[1] + GridSize < DimY)
-                {
-                    return [GridCoordinates[0] + 1, GridCoordinates[1] + 1];
+                    case 0 when GridCoordinates[0] > 0:
+                        return [GridCoordinates[0] - 1, GridCoordinates[1]];
+                    case 1 when GridCoordinates[1] > 0:
+                        return [GridCoordinates[0], GridCoordinates[1] - 1];
+                    case 2 when GridCoordinates[0] + GridSize < DimX:
+                        return [GridCoordinates[0] + 1, GridCoordinates[1]];
+                    case 3 when GridCoordinates[1] + GridSize < DimY:
+                        return [GridCoordinates[0], GridCoordinates[1] + 1];
+                    case 4 when GridCoordinates[0] > 0 && GridCoordinates[1] > 0:
+                        return [GridCoordinates[0] - 1, GridCoordinates[1] - 1];
+                    case 5 when GridCoordinates[0] + GridSize < DimX && GridCoordinates[1] > 0:
+                        return [GridCoordinates[0] + 1, GridCoordinates[1] - 1];
+                    case 6 when GridCoordinates[0] > 0 && GridCoordinates[1] + GridSize < DimY:
+                        return [GridCoordinates[0] - 1, GridCoordinates[1] + 1];
+                    case 7 when GridCoordinates[0] + GridSize < DimX && GridCoordinates[1] + GridSize < DimY:
+                        return [GridCoordinates[0] + 1, GridCoordinates[1] + 1];
                 }
             }
         }
-        
-    return [];
+        return [];
     }
     
-    public List<int> AIMovePiece(EGamePiece piece)
+    public List<int> AiMovePiece(EGamePiece piece)
     {
         if (!CheckPieceInBoard(piece) || IsGridFull())
         {
@@ -828,7 +802,7 @@ public class TicTacTwoBrain
         if (outOfGrid.Count > 0)
         {
             List<int> coordinates = [outOfGrid[0], outOfGrid[1]];
-            var winCoordinates = AINewPiece(piece);
+            var winCoordinates = AiNewPiece(piece);
             if (winCoordinates.Count > 0)
             {
                 coordinates.Add(winCoordinates[0]);
@@ -840,12 +814,10 @@ public class TicTacTwoBrain
                 var r = new Random();
                 var randomX2 = r.Next(GridCoordinates[0], GridCoordinates[0] + GridSize);
                 var randomY2 = r.Next(GridCoordinates[1], GridCoordinates[1] + GridSize);
-                if (GameBoard[randomX2][randomY2] == EGamePiece.Empty)
-                {
-                    coordinates.Add(randomX2);
-                    coordinates.Add(randomY2);
-                    return coordinates;
-                }
+                if (GameBoard[randomX2][randomY2] != EGamePiece.Empty) continue;
+                coordinates.Add(randomX2);
+                coordinates.Add(randomY2);
+                return coordinates;
             } while (true);
         }
         do
@@ -856,7 +828,7 @@ public class TicTacTwoBrain
             if (GameBoard[randomX][randomY] == piece)
             {
                 List<int> coordinates = [randomX, randomY];
-                var winCoordinates = AINewPiece(piece);
+                var winCoordinates = AiNewPiece(piece);
                 if (winCoordinates.Count > 0)
                 {
                     coordinates.Add(winCoordinates[0]);
@@ -868,12 +840,10 @@ public class TicTacTwoBrain
                     var r2 = new Random();
                     var randomX2 = r2.Next(GridCoordinates[0], GridCoordinates[0] + GridSize);
                     var randomY2 = r2.Next(GridCoordinates[1], GridCoordinates[1] + GridSize);
-                    if (GameBoard[randomX2][randomY2] == EGamePiece.Empty)
-                    {
-                        coordinates.Add(randomX2);
-                        coordinates.Add(randomY2);
-                        return coordinates;
-                    }
+                    if (GameBoard[randomX2][randomY2] != EGamePiece.Empty) continue;
+                    coordinates.Add(randomX2);
+                    coordinates.Add(randomY2);
+                    return coordinates;
                 } while (true);
             }
         } while (true);
@@ -897,8 +867,6 @@ public class TicTacTwoBrain
     
     public List<int> GetPieceOutOfGrid(EGamePiece piece)
     {
-        var gridX = GridCoordinates[0];
-        var gridY = GridCoordinates[1];
         for (var y = 0; y < DimY; y++)
         {
             for (var x = 0; x < DimX; x++)
@@ -910,7 +878,6 @@ public class TicTacTwoBrain
                 }
             }
         }
-
         return [];
     }
 }

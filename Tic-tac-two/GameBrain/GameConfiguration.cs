@@ -1,8 +1,8 @@
 ﻿namespace GameBrain;
 
-public record GameConfiguration()
+public record GameConfiguration
 {
-    public string Name { get; set; } = default!;
+    public string Name { get; init; } = default!;
     
     public int BoardSize { get; set; } = 5;
 
@@ -14,7 +14,7 @@ public record GameConfiguration()
     
     public int MovePieceAfterMoves { get; set; } = 2;
 
-    public EGamePiece StartingPiece { get; set; } = EGamePiece.X;
+    public EGamePiece StartingPiece { get; init; } = EGamePiece.X;
     
     public List<int> GridCoordinates { get; set; } = [1, 1];
 

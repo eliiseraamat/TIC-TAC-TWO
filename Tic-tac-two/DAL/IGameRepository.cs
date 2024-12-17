@@ -6,7 +6,7 @@ public interface IGameRepository
 {
     public string SaveGame(GameState gameState, string gameConfigName, EGamePiece piece);
     
-    public GameState LoadGame(string fileName);
+    public GameState? LoadGame(string fileName);
     
     public List<string> GetGameNames();
     

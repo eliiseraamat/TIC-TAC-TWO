@@ -5,12 +5,12 @@ public class MenuItem
     private string _title = default!;
     private string _shortcut = default!;
     
-    public Func<string>? MenuItemAction { get; set; }
+    public Func<string>? MenuItemAction { get; init; }
     
     public string Title
     {
         get => _title; 
-        set
+        init
         {
             if (string.IsNullOrWhiteSpace(value))
             {
@@ -23,7 +23,7 @@ public class MenuItem
     public string Shortcut 
     {
         get => _shortcut; 
-        set
+        init
         {
             if (string.IsNullOrWhiteSpace(value))
             {

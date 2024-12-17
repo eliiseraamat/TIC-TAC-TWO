@@ -4,33 +4,27 @@ public class Menu
 {
     private string Header { get; set; }
 
-    private static string _menuDivider = "===========";
-    
+    private const string MenuDivider = "===========";
+
     private List<MenuItem> MenuItems { get; set; }
     
-    private EMenuLevel _menuLevel { get; set; }
+    private EMenuLevel MenuLevel { get; set; }
     
-    private bool _isCustomMenu { get; set; }
+    private bool IsCustomMenu { get; set; }
 
-    public void SetMenuItemAction(string shortcut, Func<string> action)
-    {
-        var menuItem = MenuItems.Single(m => m.Shortcut == shortcut);
-        menuItem.MenuItemAction = action;
-    }
-
-    private MenuItem _menuItemExit = new MenuItem()
+    private readonly MenuItem _menuItemExit = new MenuItem()
     {
         Shortcut = "E",
         Title = "Exit",
     };
-    
-    private MenuItem _menuItemReturn = new MenuItem()
+
+    private readonly MenuItem _menuItemReturn = new MenuItem()
     {
         Shortcut = "R",
         Title = "Return",
     };
-    
-    private MenuItem _menuItemReturnMain = new MenuItem()
+
+    private readonly MenuItem _menuItemReturnMain = new MenuItem()
     {
         Shortcut = "M",
         Title = "return to Main menu",
@@ -38,7 +32,7 @@ public class Menu
 
     public Menu(EMenuLevel menuLevel, string header, List<MenuItem> menuItems, bool isCustomMenu = false)
     {
-        _menuLevel = menuLevel;
+        MenuLevel = menuLevel;
         
         if (string.IsNullOrWhiteSpace(header))
         {
@@ -53,20 +47,20 @@ public class Menu
         
         var shortcuts = new HashSet<string>(menuItems.Select(item => item.Shortcut));
         
-        if (shortcuts.Count < menuItems.Count || shortcuts.Contains("E") || shortcuts.Contains("R") ||
-            shortcuts.Contains("M"))
+        if (shortcuts.Count < menuItems.Count || shortcuts.Contains(_menuItemExit.Shortcut) || shortcuts.Contains(_menuItemReturn.Shortcut) ||
+            shortcuts.Contains(_menuItemReturnMain.Shortcut))
         {
             throw new ApplicationException("Incorrect menu shortcuts.");
         }
         MenuItems = menuItems;
-        _isCustomMenu = isCustomMenu;
+        IsCustomMenu = isCustomMenu;
 
-        if (_menuLevel != EMenuLevel.Main)
+        if (MenuLevel != EMenuLevel.Main)
         {
             menuItems.Add(_menuItemReturn);
         }
         
-        if (_menuLevel == EMenuLevel.Deep)
+        if (MenuLevel == EMenuLevel.Deep)
         {
             menuItems.Add(_menuItemReturnMain);
         }
@@ -86,7 +80,7 @@ public class Menu
             if (menuItem.MenuItemAction != null)
             {
                 menuReturnValue = menuItem.MenuItemAction();
-                if (_isCustomMenu) return menuReturnValue;
+                if (IsCustomMenu) return menuReturnValue;
             }
 
             if (menuItem.Shortcut == _menuItemReturn.Shortcut)
@@ -99,7 +93,7 @@ public class Menu
                 return _menuItemExit.Shortcut;
             }
             
-            if ((menuItem.Shortcut == _menuItemReturnMain.Shortcut || menuReturnValue == _menuItemReturnMain.Shortcut) && _menuLevel != EMenuLevel.Main)
+            if ((menuItem.Shortcut == _menuItemReturnMain.Shortcut || menuReturnValue == _menuItemReturnMain.Shortcut) && MenuLevel != EMenuLevel.Main)
             {
                 return menuItem.Shortcut;
             }
@@ -127,7 +121,7 @@ public class Menu
                 
                 foreach (var menuItem in MenuItems)
                 {
-                    if (menuItem.Shortcut.ToUpper() != userInput) continue;
+                    if (!menuItem.Shortcut.Equals(userInput, StringComparison.CurrentCultureIgnoreCase)) continue;
                     return menuItem;
                 }
                 
@@ -140,7 +134,7 @@ public class Menu
     private void DrawMenu()
     {
         Console.WriteLine(Header);
-        Console.WriteLine(_menuDivider);
+        Console.WriteLine(MenuDivider);
         
         foreach (var t in MenuItems)
         {
