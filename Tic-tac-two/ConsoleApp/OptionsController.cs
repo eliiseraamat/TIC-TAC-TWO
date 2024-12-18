@@ -117,28 +117,4 @@ public static class OptionsController
             
         } while (true);
     }
-
-    public static string SetStartingPiece()
-    {
-        Console.Clear();
-        Console.WriteLine("Choose if X starts (X) or O starts (O):");
-    
-        var chosenPiece = GetStartingPiece();
-
-        TicTacTwoBrain.SetStartingPiece(chosenPiece == "X" ? EGamePiece.X : EGamePiece.O);
-        return "";
-    }
-
-    private static string GetStartingPiece()
-    {
-        do
-        {
-            var input = Console.ReadLine()!;
-            if (input.Equals("X", StringComparison.CurrentCultureIgnoreCase) || input.Equals("O", StringComparison.CurrentCultureIgnoreCase))
-            {
-                return input.ToUpper();
-            }
-            Console.WriteLine("Invalid input.");
-        } while (true);
-    }
 }

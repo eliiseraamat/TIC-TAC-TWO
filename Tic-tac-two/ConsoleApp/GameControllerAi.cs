@@ -92,7 +92,7 @@ public class GameControllerAi
             }
             if (input.Equals(PieceO, StringComparison.CurrentCultureIgnoreCase))
             {
-                AiMove(gameInstance, EGamePiece.X);
+                //AiMove(gameInstance, EGamePiece.X);
                 return GameLoop(gameInstance, EGamePiece.O);
             }
             Console.WriteLine("Wrong input");
@@ -131,6 +131,11 @@ public class GameControllerAi
         do
         {
             Console.Clear();
+
+            if (piece == EGamePiece.O)
+            {
+                AiMove(gameInstance, EGamePiece.X);
+            }
             
             var winner = Game(gameInstance, piece);
 
@@ -288,7 +293,7 @@ public class GameControllerAi
 
             if (winner == null)
             {
-                return ReturnShortcut;
+                return MainShortcut;
             }
 
             choice = GameController.EndGame(winner, gameInstance);
@@ -304,7 +309,7 @@ public class GameControllerAi
 
         } while (choice == ReturnShortcut);
 
-        return ReturnShortcut;
+        return MainShortcut;
     }
     
     private static EGamePiece? AiGame(TicTacTwoBrain gameInstance)
