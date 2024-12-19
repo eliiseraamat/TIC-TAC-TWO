@@ -90,6 +90,12 @@ public class Customize : PageModel
             Error = "Winning condition must fit in the grid!";
             return Page();
         }
+        
+        if (X.Length > 20 || O.Length > 20)
+        {
+            Error = "The length of the players name can be a maximum of 20 characters";
+            return Page();
+        }
 
         if (X == O)
         {
