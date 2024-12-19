@@ -37,10 +37,22 @@ public class GameRepositoryJson : IGameRepository
 
     public GameState? LoadGame(string fileName)
     {
-        var gameDataJson = File.ReadAllText(FileHelper.BasePath + fileName + FileHelper.GameExtension);
-        var gameData = JsonSerializer.Deserialize<GameData>(gameDataJson);
+        var fullPath = FileHelper.BasePath + fileName + FileHelper.GameExtension;
 
-        return gameData?.GameState;
+        if (!File.Exists(fullPath))
+        {
+            return null;
+        }
+        try
+        {
+            var gameDataJson = File.ReadAllText(fullPath);
+            var gameData = JsonSerializer.Deserialize<GameData>(gameDataJson);
+            return gameData?.GameState;
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
 
     public List<string> GetGameNames()
@@ -54,6 +66,12 @@ public class GameRepositoryJson : IGameRepository
     public string UpdateGame(string jsonStateString, string gameName)
     {
         var fileName = FileHelper.BasePath + gameName + FileHelper.GameExtension;
+
+        if (!File.Exists(fileName))
+        {
+            return "Error";
+        }
+        
         var gameDataJson = File.ReadAllText(fileName);
         var gameData = JsonSerializer.Deserialize<GameData>(gameDataJson);
 

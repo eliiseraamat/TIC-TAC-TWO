@@ -17,7 +17,7 @@ public class GameControllerAi
 
     private static readonly MenuItem MenuNextMove = new MenuItem()
     {
-        Title = "Next Move",
+        Title = "Next move",
         Shortcut = "N",
         MenuItemAction = () => 0.ToString()
     };

@@ -117,14 +117,19 @@ public class Customize : PageModel
             _ => _gameRepository.SaveGame(brain.GameState, ConfigName, EGamePiece.X)
         };
         var passwords = _gameRepository.GetPasswords(gameName);
-        return GameType switch
+        switch (GameType)
         {
-            EGameType.OnePlayer => Piece == EGamePiece.O
-                ? RedirectToPage("/AIGame", new { GameName = gameName, Piece, AImove = true, passwordO = passwords[1] })
-                : RedirectToPage("/AIGame", new { GameName = gameName, Piece, PasswordX = passwords[0] }),
-            EGameType.Ai => RedirectToPage("/AILoop", new { GameName = gameName, Password = passwords[0] }),
-            _ => RedirectToPage("/PlayGame",
-                new { GameName = gameName, Piece, PasswordX = passwords[0], passwordO = passwords[1] })
-        };
+            case EGameType.TwoPlayer:
+                return RedirectToPage("./PlayGame",
+                    new { GameName = gameName, Piece, PasswordX = passwords[0], PasswordO = passwords[1] });
+            case EGameType.OnePlayer when Piece == EGamePiece.O:
+                TempData["AImove"] = true;
+                return RedirectToPage("./AIGame",
+                    new { GameName = gameName, Piece, PasswordO = passwords[1] });
+            case EGameType.OnePlayer:
+                return RedirectToPage("./AIGame", new { GameName = gameName, Piece, PasswordX = passwords[0] });
+            default:
+                return RedirectToPage("./AILoop", new { GameName = gameName, Password = passwords[0] });
+        }
     }
 }

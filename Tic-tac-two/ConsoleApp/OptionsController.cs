@@ -63,11 +63,11 @@ public static class OptionsController
                 {
                     return number;
                 }
-                Console.WriteLine("Please choose number in given range, choose again");
+                Console.WriteLine("Please choose number in given range, choose again!");
             }
             catch (Exception)
             {
-                Console.WriteLine("Invalid input, choose again");
+                Console.WriteLine("Invalid input, choose again!");
             }
         } while (true);
     }
@@ -92,12 +92,12 @@ public static class OptionsController
                 }
                 else
                 {
-                    Console.WriteLine("Invalid input.");
+                    Console.WriteLine("Invalid input!");
                 }
             }
             catch (Exception)
             {
-                Console.WriteLine("Invalid input.");
+                Console.WriteLine("Invalid input!");
             }
         } while (true);
     }
