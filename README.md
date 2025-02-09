@@ -1,4 +1,1 @@
-name: Eliise Raamat
-student code: 232922IADB
-email: elraam@taltech.ee
-uni-id: elraam
+This project includes the TIC-TAC-TWO game, which can be played in the console or on the web via C# Razor Pages. The game is designed to allow game saving and loading through either a database or JSON files. Players can choose from three game modes: player vs. player, player vs. AI, and AI vs. AI.
